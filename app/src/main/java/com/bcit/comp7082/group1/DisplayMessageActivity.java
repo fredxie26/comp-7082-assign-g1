@@ -1,4 +1,4 @@
-package com.example.myfirstapp;
+package com.bcit.comp7082.group1;
 
 import androidx.appcompat.app.AppCompatActivity;
 
