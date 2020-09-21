@@ -80,23 +80,21 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
-    private ArrayList<String> findPhotos(){
-        File file = new File(Environment.getExternalStorageDirectory()
-                .getAbsolutePath(), "/Android/data/com.example.myapplication/files/Pictures");
+    private ArrayList<String> findPhotos() {
+        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "/Android/data/com.example.myapplication/files/Pictures");
         ArrayList<String> photos = new ArrayList<>();
         File[] fList = file.listFiles();
-        if(fList != null){
-            for(File f : fList) {
+        if (fList != null) {
+            for (File f : fList) {
                 photos.add(f.getPath());
             }
         }
         return photos;
     }
 
-    private void updatePhoto(String path, String caption){
+    private void updatePhoto(String path, String caption) {
         String[] attr = path.split("_");
-        if(attr.length >= 3){
+        if (attr.length >= 3) {
             File to = new File(attr[0] + "_" + caption + attr[2] + "_" + attr[3]);
             File from = new File(path);
             from.renameTo(to);
@@ -104,18 +102,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scrollPhotos(View v) {
-        updatePhoto(photos.get(index),((EditText) findViewById(R.id.Captions)).getText().toString());
+        updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
 
-        switch (v.getId())
-        {
+        switch (v.getId()) {
             case R.id.LeftButton:
-                if(index > 0){
+                if (index > 0) {
                     index--;
                 }
                 break;
             case R.id.RightButton:
-                if(index < (photos.size() -1 ))
-                {
+                if (index < (photos.size() - 1)) {
                     index++;
                 }
                 break;
@@ -160,7 +156,6 @@ public class MainActivity extends AppCompatActivity {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-
         }
     }
 }
