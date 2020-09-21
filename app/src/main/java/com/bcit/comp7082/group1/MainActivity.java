@@ -26,15 +26,17 @@ public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     String mCurrentPhotoPath;
-    private ArrayList<String> photos= null;
+    private ArrayList<String> photos = null;
     private int index = 0;
 
     public static final String EXTRA_MESSAGE = "com.bcit.comp7082.MESSAGE";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
+
     public void sendMessage(View view) {
         Intent intent = new Intent(this, DisplayMessageActivity.class);
         EditText editText = (EditText) findViewById(R.id.editText);
@@ -46,15 +48,15 @@ public class MainActivity extends AppCompatActivity {
     public void takePhoto(View v) {
 
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if(takePictureIntent.resolveActivity(getPackageManager()) != null){
-            File photoFile= null;
-            try{
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
                 photoFile = createImageFile();
-            } catch (IOException ex){
+            } catch (IOException ex) {
 
             }
 
-            if (photoFile != null){
+            if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this, "comp.example.photogalleryapp.fileprovider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
@@ -63,22 +65,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private ArrayList<String> findPhotos(){
-        File file = new File(Environment.getExternalStorageDirectory()
-                .getAbsolutePath(), "/Android/data/com.example.myapplication/files/Pictures");
+    private ArrayList<String> findPhotos() {
+        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "/Android/data/com.example.myapplication/files/Pictures");
         ArrayList<String> photos = new ArrayList<>();
         File[] fList = file.listFiles();
-        if(fList != null){
-            for(File f : fList) {
+        if (fList != null) {
+            for (File f : fList) {
                 photos.add(f.getPath());
             }
         }
         return photos;
     }
 
-    private void updatePhoto(String path, String caption){
+    private void updatePhoto(String path, String caption) {
         String[] attr = path.split("_");
-        if(attr.length >= 3){
+        if (attr.length >= 3) {
             File to = new File(attr[0] + "_" + caption + attr[2] + "_" + attr[3]);
             File from = new File(path);
             from.renameTo(to);
@@ -86,18 +87,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scrollPhotos(View v) {
-        updatePhoto(photos.get(index),((EditText) findViewById(R.id.Captions)).getText().toString());
+        updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
 
-        switch (v.getId())
-        {
+        switch (v.getId()) {
             case R.id.LeftButton:
-                if(index > 0){
+                if (index > 0) {
                     index--;
                 }
                 break;
             case R.id.RightButton:
-                if(index < (photos.size() -1 ))
-                {
+                if (index < (photos.size() - 1)) {
                     index++;
                 }
                 break;
@@ -107,13 +106,11 @@ public class MainActivity extends AppCompatActivity {
         displayPhoto(photos.get(index));
     }
 
-    private void displayPhoto(String path)
-    {
+    private void displayPhoto(String path) {
         ImageView iv = (ImageView) findViewById(R.id.Gallery);
         TextView tv = (TextView) findViewById(R.id.Timestamp);
         EditText et = (EditText) findViewById(R.id.Captions);
-        if(path == null || path =="")
-        {
+        if (path == null || path == "") {
             iv.setImageResource(R.mipmap.ic_launcher);
             String[] attr = path.split("_");
             et.setText(attr[1]);
@@ -121,8 +118,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private File createImageFile() throws IOException{
-
+    private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String ImageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
@@ -132,8 +128,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             ImageView mImageView = (ImageView) findViewById(R.id.Gallery);
             mImageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));

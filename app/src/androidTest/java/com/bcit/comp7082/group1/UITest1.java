@@ -27,14 +27,14 @@ public class UITest1 {
 
     @Test
     public void searchActivityFunctions() {
-        onView(withId(R.id.btnSearch)).perform(click());
+        onView(withId(R.id.Search)).perform(click());
         onView(withId(R.id.etFromDateTime)).perform(typeText(""), closeSoftKeyboard());
         onView(withId(R.id.etToDateTime)).perform(typeText(""), closeSoftKeyboard());
         onView(withId(R.id.etKeywords)).perform(typeText("caption"), closeSoftKeyboard());
         onView(withId(R.id.go)).perform(click());
-        onView(withId(R.id.etCaption)).check(matches(withText("caption")));
-        onView(withId(R.id.btnRight)).perform(click());
-        onView(withId(R.id.btnLeft)).perform(click());
+        onView(withId(R.id.Captions)).check(matches(withText("caption")));
+        onView(withId(R.id.RightButton)).perform(click());
+        onView(withId(R.id.LeftButton)).perform(click());
     }
 
 }
