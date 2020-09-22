@@ -90,9 +90,9 @@ public class MainActivity extends AppCompatActivity {
         if (fList != null) {
             for (File f : fList) {
                 String searchTimestamp = pattern.matcher(f.getPath()).group(1);
-                if( (keyword != null && f.getPath().contains(keyword)) &&
-                    (startTime != null && searchTimestamp.compareTo(startTime) == 1) &&
-                    (endTime != null && endTime.compareTo(searchTimestamp) == 1) ) {
+                if( (keyword == null || f.getPath().contains(keyword)) &&
+                    (startTime == null || searchTimestamp.compareTo(startTime) == 1) &&
+                    (endTime == null || endTime.compareTo(searchTimestamp) == 1) ) {
                     photos.add(f.getPath());
                 }
             }
