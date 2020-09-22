@@ -5,12 +5,10 @@ import androidx.core.content.FileProvider;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,10 +20,12 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int SEARCH_IMAGE = 2;
     String currentPhotoPath;
 
     private ArrayList<String> photos= null;
@@ -73,20 +73,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sendMessage(View view) {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        EditText editText = findViewById(R.id.editText);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
+        Intent intent = new Intent(this, SearchActivity.class);
+//        EditText editText = findViewById(R.id.editText);
+//        String message = editText.getText().toString();
+//        intent.putExtra(EXTRA_MESSAGE, message);
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+
+//        startActivity(intent);
     }
 
-    private ArrayList<String> findPhotos() {
+    private ArrayList<String> findPhotos(String startTime, String endTime, String keyword) {
+        Pattern pattern = Pattern.compile(".*(\\d{8}_\\d{6}).*");
         File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "/Android/data/com.example.myapplication/files/Pictures");
         ArrayList<String> photos = new ArrayList<>();
         File[] fList = file.listFiles();
         if (fList != null) {
             for (File f : fList) {
-                photos.add(f.getPath());
+                String searchTimestamp = pattern.matcher(f.getPath()).group(1);
+                if( (keyword != null && f.getPath().contains(keyword)) &&
+                    (startTime != null && searchTimestamp.compareTo(startTime) == 1) &&
+                    (endTime != null && endTime.compareTo(searchTimestamp) == 1) ) {
+                    photos.add(f.getPath());
+                }
             }
         }
         return photos;
@@ -146,6 +154,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        String startTimestamp = data.getStringExtra(SearchActivity.STARTTIMESTAMP);
+        String endTimestamp = data.getStringExtra(SearchActivity.ENDTIMESTAMP);
+        String keyword= data.getStringExtra(SearchActivity.KEYWORDS);
+        ArrayList<String> fileList = findPhotos(startTimestamp, endTimestamp, keyword);
+        if(!fileList.isEmpty()) {
+            photoFile = new File(fileList.get(0));
+        }
+
         if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             Uri uri = Uri.fromFile(photoFile);
             Bitmap bitmap;
