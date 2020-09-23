@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scrollPhotos(View v) {
-        updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
+//        updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
         switch (v.getId()) {
             case R.id.LeftButton:
                 if (index > 0) {
