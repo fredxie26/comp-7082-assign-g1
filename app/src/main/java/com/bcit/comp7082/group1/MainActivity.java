@@ -18,13 +18,9 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,25 +82,14 @@ public class MainActivity extends AppCompatActivity {
     private File getPhotoStoragePath() {
         return getExternalFilesDir(Environment.DIRECTORY_PICTURES);
     }
-  
-    private ArrayList<String> findPhotos(String startTime, String endTime, String keyword) {
-        Pattern pattern = Pattern.compile(".*(\\d{8}_\\d{6}).*");
-        File path = getPhotoStoragePath();
-        ArrayList<String> photos = new ArrayList<>();
-        File[] fList = path.listFiles();
 
+    private ArrayList<String> findPhotos() {
+        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
+                "/Android/data/com.bcit.comp7082.group1/files/Pictures");
+        ArrayList<String> photos = new ArrayList<String>(); File[] fList = file.listFiles();
         if (fList != null) {
             for (File f : fList) {
-                String searchTimestamp = "";
-                Matcher matcher = pattern.matcher(f.getPath());
-                if (matcher.find()) {
-                    searchTimestamp = matcher.group(1);
-                }
-                if (f.getPath().contains(keyword) ||
-                    (searchTimestamp.compareTo(startTime) == 1 &&
-                    endTime.compareTo(searchTimestamp) == 1)) {
-                    photos.add(f.getPath());
-                }
+                photos.add(f.getPath());
             }
         }
         return photos;
@@ -120,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scrollPhotos(View v) {
+        updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
         switch (v.getId()) {
             case R.id.LeftButton:
                 if (index > 0) {
@@ -162,27 +148,15 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         String startTimestamp = data.getStringExtra(SearchActivity.STARTTIMESTAMP);
         String endTimestamp = data.getStringExtra(SearchActivity.ENDTIMESTAMP);
-        try {
-            startTimestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Timestamp.valueOf(startTimestamp));
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        try {
-            endTimestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Timestamp.valueOf(endTimestamp));
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
         String keyword = data.getStringExtra(SearchActivity.KEYWORDS);
-        ArrayList<String> fileList = findPhotos(startTimestamp, endTimestamp, keyword);
-        System.out.println(fileList.toString());
-        if (!fileList.isEmpty()) {
-            photoFile = new File(fileList.get(0));
-        }
+//        ArrayList<String> fileList = findPhotos();
+//        if (!fileList.isEmpty()) {
+//            photoFile = new File(fileList.get(0));
+//        }
 
-        if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE && photoFile != null) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
+            photos = findPhotos();
+            Log.d("photos", "size: "+photos.size());
             Uri uri = Uri.fromFile(photoFile);
             Bitmap bitmap;
             try {
