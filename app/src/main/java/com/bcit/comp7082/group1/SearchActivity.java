@@ -26,7 +26,7 @@ public class SearchActivity extends AppCompatActivity {
             Calendar calendar = Calendar.getInstance();
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             Date now = calendar.getTime();
-            String todayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.getTime());
+            String todayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(now);
             Date today = format.parse(todayStr);
             calendar.add(Calendar.DAY_OF_YEAR, 1);
             String tomorrowStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.getTime());

@@ -3,7 +3,6 @@ package com.bcit.comp7082.group1;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,8 +10,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -38,32 +37,24 @@ public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.bcit.comp7082.MESSAGE";
     File photoFile = null;
 
-    Button btnCamera;
     ImageView imageView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         imageView = findViewById(R.id.Gallery);
-        File[] imageFiles = getPhotoStoragePath().listFiles();
-        System.out.println("$$$$$$$$$$ ");
-        if(imageFiles != null && imageFiles.length > 0) {
-            displayPhoto(imageFiles[0].toString());
+
+        photos = findPhotos();
+        if (photos.size() == 0) {
+            displayPhoto(null);
+        } else {
+            displayPhoto(photos.get(index));
         }
-        btnCamera = findViewById(R.id.snap_button);
-        btnCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dispatchTakePictureIntent();
-            }
-        });
 
     }
 
-
-    private void dispatchTakePictureIntent() {
+    public void dispatchTakePictureIntent(View view) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             try {
@@ -71,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException ex) {
                 // Error occurred while creating the File
             }
-//            // Continue only if the File was successfully created
+                // Continue only if the File was successfully created
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
                         "com.bcit.comp7082.group1.fileprovider",
@@ -95,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     private File getPhotoStoragePath() {
         return getExternalFilesDir(Environment.DIRECTORY_PICTURES);
     }
-
+  
     private ArrayList<String> findPhotos(String startTime, String endTime, String keyword) {
         Pattern pattern = Pattern.compile(".*(\\d{8}_\\d{6}).*");
         File path = getPhotoStoragePath();
@@ -129,33 +120,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scrollPhotos(View v) {
-        updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
-
         switch (v.getId()) {
             case R.id.LeftButton:
                 if (index > 0) {
-                    index--;
+                    index=index-1;
                 }
                 break;
             case R.id.RightButton:
-                if (index < (photos.size() - 1)) {
+                if (index  < (photos.size() -1)) {
                     index++;
                 }
-                break;
-            default:
+            break;
+                default:
                 break;
         }
         displayPhoto(photos.get(index));
     }
 
     private void displayPhoto(String path) {
-        ImageView iv = findViewById(R.id.Gallery);
-        TextView tv = findViewById(R.id.Timestamp);
-        EditText et = findViewById(R.id.Captions);
-        if (path != null && !path.equals("")) {
-            iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            iv.setImageBitmap(BitmapFactory.decodeFile(path, new BitmapFactory.Options()));
-            String[] attr = path.split("_");
+        ImageView iv = (ImageView) findViewById(R.id.Gallery); TextView tv = (TextView) findViewById(R.id.Timestamp); EditText et = (EditText) findViewById(R.id.Captions);
+        if (path == null || path =="") {
+            iv.setImageResource(R.mipmap.ic_launcher); et.setText("");
+            tv.setText("");
+        } else { iv.setImageBitmap(BitmapFactory.decodeFile(path)); String[] attr = path.split("_");
             et.setText(attr[1]);
             tv.setText(attr[2]);
         }
