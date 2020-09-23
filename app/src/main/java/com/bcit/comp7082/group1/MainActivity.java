@@ -18,18 +18,15 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.nio.file.Path;
-import java.sql.Timestamp;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    static final int SEARCH_IMAGE = 2;
+    static final int SEARCH_ACTIVITY_REQUEST_CODE = 2;
     String currentPhotoPath;
 
     private ArrayList<String> photos = null;
@@ -45,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.Gallery);
 
-        photos = findPhotos();
+        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
         if (photos.size() == 0) {
             displayPhoto(null);
         } else {
@@ -147,24 +144,16 @@ public class MainActivity extends AppCompatActivity {
         return image;
     }
 
-    private ArrayList<String> findPhotos(String startTime, String endTime, String keyword) {
-        Pattern pattern = Pattern.compile(".*(\\d{8}_\\d{6}).*");
+    private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords) {
         File path = getPhotoStoragePath();
-        ArrayList<String> photos = new ArrayList<>();
+        ArrayList<String> photos = new ArrayList<String>();
         File[] fList = path.listFiles();
-
         if (fList != null) {
             for (File f : fList) {
-                String searchTimestamp = "";
-                Matcher matcher = pattern.matcher(f.getPath());
-                if (matcher.find()) {
-                    searchTimestamp = matcher.group(1);
-                }
-                if (f.getPath().contains(keyword) ||
-                        (searchTimestamp.compareTo(startTime) == 1 &&
-                                endTime.compareTo(searchTimestamp) == 1)) {
+                if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= startTimestamp.getTime()
+                        && f.lastModified() <= endTimestamp.getTime())
+                ) && (keywords == "" || f.getPath().contains(keywords)))
                     photos.add(f.getPath());
-                }
             }
         }
         return photos;
@@ -173,29 +162,31 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        String startTimestamp = data.getStringExtra(SearchActivity.STARTTIMESTAMP);
-        String endTimestamp = data.getStringExtra(SearchActivity.ENDTIMESTAMP);
-        try {
-            startTimestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Timestamp.valueOf(startTimestamp));
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        try {
-            endTimestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Timestamp.valueOf(endTimestamp));
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        if (requestCode == SEARCH_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                DateFormat format = new SimpleDateFormat("yyyy‐MM‐dd HH:mm:ss");
+                Date startTimestamp , endTimestamp;
+                try {
+                    String from = (String) data.getStringExtra("STARTTIMESTAMP");
+                    String to = (String) data.getStringExtra("ENDTIMESTAMP");
+                    startTimestamp = format.parse(from);
+                    endTimestamp = format.parse(to);
+                } catch (Exception ex) {
+                    startTimestamp = null;
+                    endTimestamp = null;
+                }
+                String keywords = (String) data.getStringExtra("KEYWORDS");
+                index = 0;
+                photos = findPhotos(startTimestamp, endTimestamp, keywords);
 
-        String keyword = data.getStringExtra(SearchActivity.KEYWORDS);
-        ArrayList<String> fileList = findPhotos(startTimestamp, endTimestamp, keyword);
-        System.out.println(fileList.toString());
-        if (!fileList.isEmpty()) {
-            photoFile = new File(fileList.get(0));
+                if (photos.size() == 0) {
+                    displayPhoto(null);
+                } else {
+                    displayPhoto(photos.get(index));
+                }
+            }
         }
-
-        if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE && photoFile != null) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             photos = findPhotos();
             Log.d("photos", "size: "+photos.size());
             Uri uri = Uri.fromFile(photoFile);
