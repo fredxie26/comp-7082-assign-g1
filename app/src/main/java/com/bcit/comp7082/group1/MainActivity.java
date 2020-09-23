@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,30 +39,23 @@ public class MainActivity extends AppCompatActivity {
 
     Button btnCamera;
     ImageView imageView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         imageView = findViewById(R.id.Gallery);
-        File[] imageFiles = getPhotoStoragePath().listFiles();
-        System.out.println("$$$$$$$$$$ ");
-        if(imageFiles != null && imageFiles.length > 0) {
-            displayPhoto(imageFiles[0].toString());
+
+        photos = findPhotos();
+        if (photos.size() == 0) {
+            displayPhoto(null);
+        } else {
+            displayPhoto(photos.get(index));
         }
-        btnCamera = findViewById(R.id.snap_button);
-        btnCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dispatchTakePictureIntent();
-            }
-        });
 
     }
 
-
-    private void dispatchTakePictureIntent() {
+    public void dispatchTakePictureIntent(View view) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             try {
@@ -69,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException ex) {
                 // Error occurred while creating the File
             }
-//            // Continue only if the File was successfully created
+                // Continue only if the File was successfully created
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
                         "com.bcit.comp7082.group1.fileprovider",
@@ -94,19 +88,13 @@ public class MainActivity extends AppCompatActivity {
         return getExternalFilesDir(Environment.DIRECTORY_PICTURES);
     }
 
-    private ArrayList<String> findPhotos(String startTime, String endTime, String keyword) {
-        Pattern pattern = Pattern.compile(".*(\\d{8}_\\d{6}).*");
-        File path = getPhotoStoragePath();
-        ArrayList<String> photos = new ArrayList<>();
-        File[] fList = path.listFiles();
+    private ArrayList<String> findPhotos() {
+        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
+                "/Android/data/com.bcit.comp7082.group1/files/Pictures");
+        ArrayList<String> photos = new ArrayList<String>(); File[] fList = file.listFiles();
         if (fList != null) {
             for (File f : fList) {
-                String searchTimestamp = pattern.matcher(f.getPath()).group(1);
-                if ((keyword == null || f.getPath().contains(keyword)) &&
-                        (startTime == null || searchTimestamp.compareTo(startTime) == 1) &&
-                        (endTime == null || endTime.compareTo(searchTimestamp) == 1)) {
-                    photos.add(f.getPath());
-                }
+                photos.add(f.getPath());
             }
         }
         return photos;
@@ -122,33 +110,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scrollPhotos(View v) {
-        updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
-
         switch (v.getId()) {
             case R.id.LeftButton:
                 if (index > 0) {
-                    index--;
+                    index=index-1;
                 }
                 break;
             case R.id.RightButton:
-                if (index < (photos.size() - 1)) {
+                if (index  < (photos.size() -1)) {
                     index++;
                 }
-                break;
-            default:
+            break;
+                default:
                 break;
         }
         displayPhoto(photos.get(index));
     }
 
     private void displayPhoto(String path) {
-        ImageView iv = findViewById(R.id.Gallery);
-        TextView tv = findViewById(R.id.Timestamp);
-        EditText et = findViewById(R.id.Captions);
-        if (path != null && !path.equals("")) {
-            iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            iv.setImageBitmap(BitmapFactory.decodeFile(path, new BitmapFactory.Options()));
-            String[] attr = path.split("_");
+        ImageView iv = (ImageView) findViewById(R.id.Gallery); TextView tv = (TextView) findViewById(R.id.Timestamp); EditText et = (EditText) findViewById(R.id.Captions);
+        if (path == null || path =="") {
+            iv.setImageResource(R.mipmap.ic_launcher); et.setText("");
+            tv.setText("");
+        } else { iv.setImageBitmap(BitmapFactory.decodeFile(path)); String[] attr = path.split("_");
             et.setText(attr[1]);
             tv.setText(attr[2]);
         }
