@@ -173,7 +173,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        super.onActivityResult(requestCode, resultCode, data);
         String startTimestamp = data.getStringExtra(SearchActivity.STARTTIMESTAMP);
         String endTimestamp = data.getStringExtra(SearchActivity.ENDTIMESTAMP);
         try {
