@@ -3,6 +3,7 @@ package com.bcit.comp7082.group1;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,7 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,33 +19,41 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int SEARCH_IMAGE = 2;
     String currentPhotoPath;
 
-    private ArrayList<String> photos= null;
+    private ArrayList<String> photos = null;
     private int index = 0;
     public static final String EXTRA_MESSAGE = "com.bcit.comp7082.MESSAGE";
     File photoFile = null;
 
     Button btnCamera;
     ImageView imageView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        imageView =  findViewById(R.id.Gallery);
-
-        btnCamera =  findViewById(R.id.snap_button);
-        btnCamera.setOnClickListener(new View.OnClickListener(){
+        imageView = findViewById(R.id.Gallery);
+        File[] imageFiles = getPhotoStoragePath().listFiles();
+        System.out.println("$$$$$$$$$$ ");
+        if(imageFiles != null && imageFiles.length > 0) {
+            displayPhoto(imageFiles[0].toString());
+        }
+        btnCamera = findViewById(R.id.snap_button);
+        btnCamera.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
                 dispatchTakePictureIntent();
             }
         });
@@ -73,20 +81,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sendMessage(View view) {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        EditText editText = findViewById(R.id.editText);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
+        Intent intent = new Intent(this, SearchActivity.class);
+//        EditText editText = findViewById(R.id.editText);
+//        String message = editText.getText().toString();
+//        intent.putExtra(EXTRA_MESSAGE, message);
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+
+//        startActivity(intent);
     }
 
-    private ArrayList<String> findPhotos() {
-        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "/Android/data/com.example.myapplication/files/Pictures");
+    private File getPhotoStoragePath() {
+        return getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+    }
+
+    private ArrayList<String> findPhotos(String startTime, String endTime, String keyword) {
+        Pattern pattern = Pattern.compile(".*(\\d{8}_\\d{6}).*");
+        File path = getPhotoStoragePath();
         ArrayList<String> photos = new ArrayList<>();
-        File[] fList = file.listFiles();
+        File[] fList = path.listFiles();
         if (fList != null) {
             for (File f : fList) {
-                photos.add(f.getPath());
+                String searchTimestamp = pattern.matcher(f.getPath()).group(1);
+                if ((keyword == null || f.getPath().contains(keyword)) &&
+                        (startTime == null || searchTimestamp.compareTo(startTime) == 1) &&
+                        (endTime == null || endTime.compareTo(searchTimestamp) == 1)) {
+                    photos.add(f.getPath());
+                }
             }
         }
         return photos;
@@ -122,22 +142,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayPhoto(String path) {
-        ImageView iv =  findViewById(R.id.Gallery);
+        ImageView iv = findViewById(R.id.Gallery);
         TextView tv = findViewById(R.id.Timestamp);
         EditText et = findViewById(R.id.Captions);
-        if(path == null || path =="")
-        {
-            iv.setImageResource(R.mipmap.ic_launcher);
+        if (path != null && !path.equals("")) {
+            iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            iv.setImageBitmap(BitmapFactory.decodeFile(path, new BitmapFactory.Options()));
             String[] attr = path.split("_");
             et.setText(attr[1]);
             tv.setText(attr[2]);
         }
     }
 
-    private File createImageFile() throws IOException{
+    private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String ImageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File storageDir = getPhotoStoragePath();
         File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
         currentPhotoPath = image.getAbsolutePath();
         return image;
@@ -146,6 +166,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        String startTimestamp = data.getStringExtra(SearchActivity.STARTTIMESTAMP);
+        String endTimestamp = data.getStringExtra(SearchActivity.ENDTIMESTAMP);
+        String keyword = data.getStringExtra(SearchActivity.KEYWORDS);
+        /*ArrayList<String> fileList = findPhotos(startTimestamp, endTimestamp, keyword);
+        if (!fileList.isEmpty()) {
+            photoFile = new File(fileList.get(0));
+        }*/
+
         if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             Uri uri = Uri.fromFile(photoFile);
             Bitmap bitmap;

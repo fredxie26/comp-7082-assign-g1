@@ -15,19 +15,21 @@ import java.util.Locale;
 import java.util.logging.Logger;
 
 public class SearchActivity extends AppCompatActivity {
-
+    public static final String STARTTIMESTAMP = "STARTTIMESTAMP";
+    public static final String ENDTIMESTAMP = "ENDTIMESTAMP";
+    public static final String KEYWORDS = "KEYWORDS";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         try {
             Calendar calendar = Calendar.getInstance();
-            DateFormat format = new SimpleDateFormat("yyy-MM-dd");
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             Date now = calendar.getTime();
             String todayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.getTime());
             Date today = format.parse(todayStr);
             calendar.add(Calendar.DAY_OF_YEAR, 1);
-            String tomorrowStr = new SimpleDateFormat("yyy-MM-dd", Locale.getDefault()).format(calendar.getTime());
+            String tomorrowStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.getTime());
             Date tomorrow = format.parse(tomorrowStr);
             ((EditText) findViewById(R.id.etFromDateTime)).setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(today));
             ((EditText) findViewById(R.id.etToDateTime)).setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(tomorrow));
