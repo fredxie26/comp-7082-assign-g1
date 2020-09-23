@@ -3,7 +3,6 @@ package com.bcit.comp7082.group1;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,18 +12,15 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.bcit.comp7082.MESSAGE";
     File photoFile = null;
 
-    Button btnCamera;
     ImageView imageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,12 +148,14 @@ public class MainActivity extends AppCompatActivity {
         String startTimestamp = data.getStringExtra(SearchActivity.STARTTIMESTAMP);
         String endTimestamp = data.getStringExtra(SearchActivity.ENDTIMESTAMP);
         String keyword = data.getStringExtra(SearchActivity.KEYWORDS);
-        /*ArrayList<String> fileList = findPhotos(startTimestamp, endTimestamp, keyword);
-        if (!fileList.isEmpty()) {
-            photoFile = new File(fileList.get(0));
-        }*/
+//        ArrayList<String> fileList = findPhotos();
+//        if (!fileList.isEmpty()) {
+//            photoFile = new File(fileList.get(0));
+//        }
 
         if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
+            photos = findPhotos();
+            Log.d("photos", "size: "+photos.size());
             Uri uri = Uri.fromFile(photoFile);
             Bitmap bitmap;
             try {
