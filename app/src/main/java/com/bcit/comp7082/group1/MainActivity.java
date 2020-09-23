@@ -21,6 +21,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.nio.file.Path;
+import java.sql.Timestamp;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -143,18 +147,56 @@ public class MainActivity extends AppCompatActivity {
         return image;
     }
 
+    private ArrayList<String> findPhotos(String startTime, String endTime, String keyword) {
+        Pattern pattern = Pattern.compile(".*(\\d{8}_\\d{6}).*");
+        File path = getPhotoStoragePath();
+        ArrayList<String> photos = new ArrayList<>();
+        File[] fList = path.listFiles();
+
+        if (fList != null) {
+            for (File f : fList) {
+                String searchTimestamp = "";
+                Matcher matcher = pattern.matcher(f.getPath());
+                if (matcher.find()) {
+                    searchTimestamp = matcher.group(1);
+                }
+                if (f.getPath().contains(keyword) ||
+                        (searchTimestamp.compareTo(startTime) == 1 &&
+                                endTime.compareTo(searchTimestamp) == 1)) {
+                    photos.add(f.getPath());
+                }
+            }
+        }
+        return photos;
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
         String startTimestamp = data.getStringExtra(SearchActivity.STARTTIMESTAMP);
         String endTimestamp = data.getStringExtra(SearchActivity.ENDTIMESTAMP);
-        String keyword = data.getStringExtra(SearchActivity.KEYWORDS);
-//        ArrayList<String> fileList = findPhotos();
-//        if (!fileList.isEmpty()) {
-//            photoFile = new File(fileList.get(0));
-//        }
+        try {
+            startTimestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Timestamp.valueOf(startTimestamp));
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        try {
+            endTimestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Timestamp.valueOf(endTimestamp));
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-        if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
+        String keyword = data.getStringExtra(SearchActivity.KEYWORDS);
+        ArrayList<String> fileList = findPhotos(startTimestamp, endTimestamp, keyword);
+        System.out.println(fileList.toString());
+        if (!fileList.isEmpty()) {
+            photoFile = new File(fileList.get(0));
+        }
+
+        if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE && photoFile != null) {
             photos = findPhotos();
             Log.d("photos", "size: "+photos.size());
             Uri uri = Uri.fromFile(photoFile);
