@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -72,30 +71,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void searchImage(View view) {
         Intent intent = new Intent(this, SearchActivity.class);
-//        EditText editText = findViewById(R.id.editText);
-//        String message = editText.getText().toString();
-//        intent.putExtra(EXTRA_MESSAGE, message);
         startActivityForResult(intent, SEARCH_ACTIVITY_REQUEST_CODE);
-
-//        startActivity(intent);
     }
 
     private File getPhotoStoragePath() {
         return getExternalFilesDir(Environment.DIRECTORY_PICTURES);
     }
-
-//    private ArrayList<String> findPhotos() {
-//        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
-//                "/Android/data/com.bcit.comp7082.group1/files/Pictures");
-//        ArrayList<String> photos = new ArrayList<String>();
-//        File[] fList = file.listFiles();
-//        if (fList != null) {
-//            for (File f : fList) {
-//                photos.add(f.getPath());
-//            }
-//        }
-//        return photos;
-//    }
 
     private void updatePhoto(String path, String caption) {
         if(path != null && caption != null) {
@@ -171,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SEARCH_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                DateFormat format = new SimpleDateFormat("yyyy‐MM‐dd HH:mm:ss");
                 Date startTimestamp , endTimestamp;
                 try {
                     String from = (String) data.getStringExtra("STARTTIMESTAMP");
