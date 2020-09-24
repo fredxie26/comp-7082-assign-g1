@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scrollPhotos(View v) {
-        updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
+//        updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
         switch (v.getId()) {
             case R.id.LeftButton:
                 if (index > 0) {
@@ -160,49 +160,6 @@ public class MainActivity extends AppCompatActivity {
         return photos;
     }
 
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == SEARCH_ACTIVITY_REQUEST_CODE) {
-//            if (resultCode == RESULT_OK) {
-//                DateFormat format = new SimpleDateFormat("yyyy‐MM‐dd HH:mm:ss");
-//                Date startTimestamp , endTimestamp;
-//                try {
-//                    String from = (String) data.getStringExtra("STARTTIMESTAMP");
-//                    String to = (String) data.getStringExtra("ENDTIMESTAMP");
-//                    startTimestamp = format.parse(from);
-//                    endTimestamp = format.parse(to);
-//                } catch (Exception ex) {
-//                    startTimestamp = null;
-//                    endTimestamp = null;
-//                }
-//                String keywords = (String) data.getStringExtra("KEYWORDS");
-//                index = 0;
-//                photos = findPhotos(startTimestamp, endTimestamp, keywords);
-//
-//                if (photos.size() == 0) {
-//                    displayPhoto(null);
-//                } else {
-//                    displayPhoto(photos.get(index));
-//                }
-//            }
-//        }
-//        if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
-//            photos = findPhotos();
-//            Log.d("photos", "size: "+photos.size());
-//            Uri uri = Uri.fromFile(photoFile);
-//            Bitmap bitmap;
-//            try {
-//                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-//                imageView.setImageBitmap(bitmap);
-//            } catch (IOException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -213,8 +170,8 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     String from = (String) data.getStringExtra("STARTTIMESTAMP");
                     String to = (String) data.getStringExtra("ENDTIMESTAMP");
-                    startTimestamp = format.parse(from);
-                    endTimestamp = format.parse(to);
+                    startTimestamp= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(from);
+                    endTimestamp= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(to);
                 } catch (Exception ex) {
                     startTimestamp = null;
                     endTimestamp = null;
