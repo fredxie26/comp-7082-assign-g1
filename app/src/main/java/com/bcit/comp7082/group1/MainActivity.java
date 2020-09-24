@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void sendMessage(View view) {
+    public void searchImage(View view) {
         Intent intent = new Intent(this, SearchActivity.class);
 //        EditText editText = findViewById(R.id.editText);
 //        String message = editText.getText().toString();
@@ -98,31 +98,36 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     private void updatePhoto(String path, String caption) {
-        String[] attr = path.split("_");
-        if (attr.length >= 3) {
-            File to = new File(attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3]);
-            File from = new File(path);
-            from.renameTo(to);
+        if(path != null && caption != null) {
+            String[] attr = path.split("_");
+            if (attr.length >= 3) {
+                File to = new File(attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3]);
+                File from = new File(path);
+                from.renameTo(to);
+            }
         }
     }
 
     public void scrollPhotos(View v) {
-//        updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
-        switch (v.getId()) {
-            case R.id.LeftButton:
-                if (index > 0) {
-                    index=index-1;
-                }
-                break;
-            case R.id.RightButton:
-                if (index  < (photos.size() -1)) {
-                    index++;
-                }
-            break;
+        if(!photos.isEmpty()) {
+            updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
+
+            switch (v.getId()) {
+                case R.id.LeftButton:
+                    if (index > 0) {
+                        index = index - 1;
+                    }
+                    break;
+                case R.id.RightButton:
+                    if (index < (photos.size() - 1)) {
+                        index++;
+                    }
+                    break;
                 default:
-                break;
+                    break;
+            }
+            displayPhoto(photos.get(index));
         }
-        displayPhoto(photos.get(index));
     }
 
     private void displayPhoto(String path) {
@@ -142,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
         File storageDir = getPhotoStoragePath();
         File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
         currentPhotoPath = image.getAbsolutePath();
+        displayPhoto(currentPhotoPath);
         return image;
     }
 
