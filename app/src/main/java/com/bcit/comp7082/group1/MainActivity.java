@@ -100,14 +100,14 @@ public class MainActivity extends AppCompatActivity {
     private void updatePhoto(String path, String caption) {
         String[] attr = path.split("_");
         if (attr.length >= 3) {
-            File to = new File(attr[0] + "_" + caption + attr[2] + "_" + attr[3]);
+            File to = new File(attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3]);
             File from = new File(path);
             from.renameTo(to);
         }
     }
 
     public void scrollPhotos(View v) {
-//        updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
+        updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
         switch (v.getId()) {
             case R.id.LeftButton:
                 if (index > 0) {
