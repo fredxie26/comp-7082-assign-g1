@@ -15,9 +15,6 @@ import java.util.Locale;
 import java.util.logging.Logger;
 
 public class SearchActivity extends AppCompatActivity {
-    public static final String STARTTIMESTAMP = "STARTTIMESTAMP";
-    public static final String ENDTIMESTAMP = "ENDTIMESTAMP";
-    public static final String KEYWORDS = "KEYWORDS";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
