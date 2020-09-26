@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
                 File to = new File(attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3]);
                 File from = new File(path);
                 from.renameTo(to);
+                photos.set(index, to.getPath());
             }
         }
     }
