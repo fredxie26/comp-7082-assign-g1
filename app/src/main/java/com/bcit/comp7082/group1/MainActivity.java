@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     File photoFile = null;
 
     ImageView imageView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,14 +115,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayPhoto(String path) {
-        ImageView iv = (ImageView) findViewById(R.id.Gallery); TextView tv = (TextView) findViewById(R.id.Timestamp); EditText et = (EditText) findViewById(R.id.Captions);
-        if (path == null || path =="") {
-            iv.setImageResource(R.mipmap.ic_launcher); et.setText("");
+        ImageView iv = (ImageView) findViewById(R.id.Gallery);
+        TextView tv = (TextView) findViewById(R.id.Timestamp);
+        EditText et = (EditText) findViewById(R.id.Captions);
+        if (path == null || path.equals("")) {
+            iv.setImageResource(R.mipmap.ic_launcher);
+            et.setText("");
             tv.setText("");
-        } else { iv.setImageBitmap(BitmapFactory.decodeFile(path)); String[] attr = path.split("_");
-            et.setText(attr[1]);
-            tv.setText(attr[2]);
+        } else {
+            iv.setImageBitmap(BitmapFactory.decodeFile(path));
+            if (path.contains("_")) {
+                String[] attr = path.split("_");
+                et.setText(attr[1]);
+                tv.setText(attr[2]);
+            } else {
+                et.setText("");
+                tv.setText("");
+            }
         }
+        iv.setTag(path);
     }
 
     private File createImageFile() throws IOException {
@@ -145,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
                     photos.add(f.getPath());
             }
         }
+        photos.sort(Collections.<String>reverseOrder());
         return photos;
     }
 
@@ -153,12 +167,12 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SEARCH_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Date startTimestamp , endTimestamp;
+                Date startTimestamp, endTimestamp;
                 try {
                     String from = (String) data.getStringExtra("STARTTIMESTAMP");
                     String to = (String) data.getStringExtra("ENDTIMESTAMP");
-                    startTimestamp= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(from);
-                    endTimestamp= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(to);
+                    startTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(from);
+                    endTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(to);
                 } catch (Exception ex) {
                     startTimestamp = null;
                     endTimestamp = null;
@@ -173,15 +187,16 @@ public class MainActivity extends AppCompatActivity {
                     displayPhoto(photos.get(index));
                 }
             }
-        }else if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
-            Log.d("Onactivity Result", requestCode+"second if statement"+resultCode);
+        } else if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
+            Log.d("Onactivity Result", requestCode + "second if statement" + resultCode);
             photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
-            Log.d("photos", "size: "+photos.size());
+            Log.d("photos", "size: " + photos.size());
             Uri uri = Uri.fromFile(photoFile);
             Bitmap bitmap;
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 imageView.setImageBitmap(bitmap);
+
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
