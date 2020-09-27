@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">JustAnotherPhotoGalleryApp</string>
+    <string name="location">Location</string>
+    <string name="prev">Prev</string>
+    <string name="next">Next</string>
+    <string name="timeStamp">TimeStamp</string>
+    <string name="search">Search</string>
+    <string name="snap">Snap</string>
+    <string name="caption">Caption</string>
+
+    <string name="share">Share</string>
+    <string name="imageView">ImageView</string>
+
 </resources>
