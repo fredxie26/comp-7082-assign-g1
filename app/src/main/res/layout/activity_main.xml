@@ -10,7 +10,7 @@
         android:id="@+id/Search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="sendMessage"
+        android:onClick="searchImage"
         android:text="Search"
         app:layout_constraintBottom_toTopOf="@+id/Gallery"
         app:layout_constraintEnd_toEndOf="parent"
