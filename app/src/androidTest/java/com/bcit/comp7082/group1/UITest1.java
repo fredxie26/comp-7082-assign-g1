@@ -41,7 +41,7 @@ public class UITest1 {
         DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String nowS = now.format(f);
         String afterS = after.format(f);
-        File file = createImageFile();
+        File file = createImageFile("myCaption");
 
         onView(withId(R.id.Search)).perform(click());
         onView(withId(R.id.etFromDateTime)).perform(clearText());
@@ -49,20 +49,20 @@ public class UITest1 {
         onView(withId(R.id.etFromDateTime)).perform(typeText(nowS), closeSoftKeyboard());
         onView(withId(R.id.etToDateTime)).perform(typeText(afterS), closeSoftKeyboard());
 
-        //onView(withId(R.id.etKeywords)).perform(typeText("caption"), closeSoftKeyboard());
+        onView(withId(R.id.etKeywords)).perform(typeText("myCaption"), closeSoftKeyboard());
         onView(withId(R.id.go)).perform(click());
         String path = file.getAbsolutePath();
         onView(withId(R.id.Gallery)).check(matches(ImageViewSameFilenameMatcher.matchesImage(path)));
 
 
-        //onView(withId(R.id.Captions)).check(matches(withText("caption")));
+        onView(withId(R.id.Captions)).check(matches(withText("myCaption")));
         onView(withId(R.id.RightButton)).perform(click());
         onView(withId(R.id.LeftButton)).perform(click());
     }
 
-    private File createImageFile() throws IOException {
+    private File createImageFile(String caption) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String imageFileName = "JPEG_" + caption + "_" + timeStamp + "_";
         File storageDir = new File("/storage/emulated/0/Android/data/com.bcit.comp7082.group1/files/Pictures/");
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
         return image;
