@@ -6,6 +6,7 @@ import androidx.core.content.FileProvider;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -74,6 +76,25 @@ public class MainActivity extends AppCompatActivity {
     public void searchImage(View view) {
         Intent intent = new Intent(this, SearchActivity.class);
         startActivityForResult(intent, SEARCH_ACTIVITY_REQUEST_CODE);
+    }
+
+    public void shareToSocial(View view) {
+        BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+        Bitmap bitmap = drawable.getBitmap();
+
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("image/jpeg");
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+
+        String savedFile = photos.get(index);
+
+        Uri imageUri =  Uri.parse(savedFile);
+        share.putExtra(Intent.EXTRA_STREAM, imageUri);
+        startActivity(Intent.createChooser(share, "Share Image"));
+
     }
 
     private File getPhotoStoragePath() {
@@ -196,7 +217,6 @@ public class MainActivity extends AppCompatActivity {
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 imageView.setImageBitmap(bitmap);
-
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
