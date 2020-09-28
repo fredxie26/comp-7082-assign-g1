@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int SEARCH_ACTIVITY_REQUEST_CODE = 2;
+    private Helper helper = new Helper();
     String currentPhotoPath;
 
     private ArrayList<String> photos = null;
@@ -190,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("Onactivity Result", requestCode+"second if statement"+resultCode);
             photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
             Log.d("photos", "size: "+photos.size());
+            helper.geoTag(photoFile.getPath());
             Uri uri = Uri.fromFile(photoFile);
             Bitmap bitmap;
             try {
