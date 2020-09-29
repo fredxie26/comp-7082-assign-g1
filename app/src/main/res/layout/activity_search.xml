@@ -123,8 +123,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="231dp"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name" />
+        android:inputType="textPersonName" />
 
     <EditText
         android:id="@+id/etLongitude"
@@ -134,6 +133,5 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="156dp"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name" />
+        android:inputType="textPersonName" />
 </RelativeLayout>

@@ -9,6 +9,9 @@ public class Helper {
         ExifInterface exif;
         try {
             exif = new ExifInterface(filename);
+            System.out.println("**************");
+            System.out.println(filename);
+            System.out.println(lng);
 //            location = new Location("providername");
 //            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, Double.toString(lat));
 //            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, Double.toString(lng));
@@ -28,7 +31,6 @@ public class Helper {
             exif= new ExifInterface(filename);
             latLong = exif.getLatLong();
             if (latLong != null) {
-                System.out.println("******************");
                 System.out.println("Latitude: " + latLong[0]);
                 System.out.println("Longitude: " + latLong[1]);
             }

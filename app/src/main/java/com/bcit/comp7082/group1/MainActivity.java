@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -33,6 +34,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<String> photos = null;
     private int index = 0;
-    public static final String EXTRA_MESSAGE = "com.bcit.comp7082.MESSAGE";
+    final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
     File photoFile = null;
 
     ImageView imageView;
@@ -82,11 +85,14 @@ public class MainActivity extends AppCompatActivity {
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                displayPhoto(currentPhotoPath);
             }
         }
     }
 
     public void searchImage(View view) {
+        TextView tv = (TextView) findViewById(R.id.Location);
+        tv.setText("");
         Intent intent = new Intent(this, SearchActivity.class);
         startActivityForResult(intent, SEARCH_ACTIVITY_REQUEST_CODE);
     }
@@ -104,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         String savedFile = photos.get(index);
 
-        Uri imageUri =  Uri.parse(savedFile);
+        Uri imageUri = Uri.parse(savedFile);
         share.putExtra(Intent.EXTRA_STREAM, imageUri);
         startActivity(Intent.createChooser(share, "Share Image"));
 
@@ -115,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updatePhoto(String path, String caption) {
-        if(path != null && caption != null) {
+        if (path != null && caption != null) {
             String[] attr = path.split("_");
             if (attr.length >= 3) {
                 File to = new File(attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3]);
@@ -127,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scrollPhotos(View v) {
-        if(!photos.isEmpty()) {
+        if (!photos.isEmpty()) {
             updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
 
             switch (v.getId()) {
@@ -162,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
                 String[] attr = path.split("_");
                 et.setText(attr[1]);
                 tv.setText(attr[2]);
-                displayLocation();
+                displayLocation(path);
             } else {
                 et.setText("");
                 tv.setText("");
@@ -176,24 +182,29 @@ public class MainActivity extends AppCompatActivity {
         String ImageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getPhotoStoragePath();
         File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
+
         currentPhotoPath = image.getAbsolutePath();
-        displayPhoto(currentPhotoPath);
         return image;
     }
 
     private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords,
                                          String latitude, String longitude) {
+
         File path = getPhotoStoragePath();
         ArrayList<String> photos = new ArrayList<String>();
         File[] fList = path.listFiles();
-        if (fList != null) {
+
+        if (fList != null && fList.length != 0) {
             for (File f : fList) {
                 double[] laglon = helper.retrieveGeoLocation(f.getPath());
+                System.out.println("|||||||||||||||");
+                System.out.println(latitude);
+                System.out.println(longitude);
                 if (((startTimestamp == null && endTimestamp == null) ||
-                    (f.lastModified() >= startTimestamp.getTime() && f.lastModified() <= endTimestamp.getTime())) &&
-                    (keywords == "" || f.getPath().contains(keywords)) &&
-                    ((latitude == null && longitude == null && laglon != null) ||
-                    (latitude == Double.toString(laglon[0]) && longitude == Double.toString(laglon[1]) )))
+                        (f.lastModified() >= startTimestamp.getTime() && f.lastModified() <= endTimestamp.getTime())) &&
+                        (keywords == "" || f.getPath().contains(keywords)) &&
+                        (((latitude == "" || latitude.isEmpty()) && (longitude == "" || longitude.isEmpty())) ||
+                        (laglon != null && latitude.equals(Double.toString(laglon[0])) && longitude.equals(Double.toString(laglon[1])) )))
                     photos.add(f.getPath());
             }
         }
@@ -210,8 +221,8 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     String from = (String) data.getStringExtra("STARTTIMESTAMP");
                     String to = (String) data.getStringExtra("ENDTIMESTAMP");
-                    startTimestamp= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(from);
-                    endTimestamp= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(to);
+                    startTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(from);
+                    endTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(to);
                 } catch (Exception ex) {
                     startTimestamp = null;
                     endTimestamp = null;
@@ -234,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("photos", "size: " + photos.size());
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
+                System.out.println("Permisson not granted!");
             }
             fusedLocationClient.getLastLocation()
                     .addOnSuccessListener(this, new OnSuccessListener<Location>() {
@@ -243,10 +254,11 @@ public class MainActivity extends AppCompatActivity {
                             // Got last known location. In some rare situations this can be null.
                             if (location != null) {
                                 helper.geoTag(photoFile.getPath(), location.getLatitude(), location.getLongitude());
-                                displayLocation();
+                                displayLocation(photoFile.getPath());
                             }
                         }
                     });
+
             Uri uri = Uri.fromFile(photoFile);
             Bitmap bitmap;
             try {
@@ -259,10 +271,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void displayLocation() {
+    private void displayLocation(String path) {
         double[] laglon = null;
-        if(photoFile.getPath() != null) {
-            laglon = helper.retrieveGeoLocation(photoFile.getPath());
+        if(path != null) {
+            laglon = helper.retrieveGeoLocation(path);
         }
         if(laglon != null) {
             String text = "Latitude: " + Double.toString(laglon[0]) + System.lineSeparator();
