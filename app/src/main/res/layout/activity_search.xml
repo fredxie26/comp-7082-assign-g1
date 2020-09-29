@@ -7,6 +7,15 @@
     tools:context=".SearchActivity">
 
     <TextView
+        android:id="@+id/tvKeywords2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tvFromDateTime"
+        android:layout_centerVertical="true"
+        android:text="Keywords: "
+        android:textSize="24sp" />
+
+    <TextView
         android:id="@+id/tvFromDateTime"
         android:text="From: "
         android:layout_width="wrap_content"
@@ -49,11 +58,13 @@
 
     <TextView
         android:id="@+id/tvKeywords"
-        android:text="Keywords: "
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/tvFromDateTime"
+        android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
+        android:layout_marginStart="0dp"
+        android:text="Keywords: "
         android:textSize="24sp" />
 
     <EditText
@@ -84,4 +95,45 @@
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/btnCancel"
         android:layout_marginEnd="128dp" />
+
+    <TextView
+        android:id="@+id/txLag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="249dp"
+        android:text="Latitude" />
+
+    <TextView
+        android:id="@+id/tvLon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="2dp"
+        android:layout_marginBottom="166dp"
+        android:text="Longitude" />
+
+    <EditText
+        android:id="@+id/etLatitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="231dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Name" />
+
+    <EditText
+        android:id="@+id/etLongitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="156dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Name" />
 </RelativeLayout>
