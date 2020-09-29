@@ -1,7 +1,6 @@
+
 package com.bcit.comp7082.group1;
 
-
-import android.os.Environment;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -13,10 +12,13 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.typeText;
@@ -34,20 +36,35 @@ public class UITest1 {
 
     @Test
     public void searchActivityFunctions() throws IOException {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime after = now.minusMinutes(5);
+        LocalDateTime now = LocalDateTime.now().minusDays(1);
+        LocalDateTime after = now.plusDays(2);
         DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        File file = new File("/storage/emulated/0/Android/data/com.bcit.comp7082.group1/files/Pictures/testFile.jpg");
-        file.createNewFile();
+        String nowS = now.format(f);
+        String afterS = after.format(f);
+        File file = createImageFile("myCaption");
+
         onView(withId(R.id.Search)).perform(click());
-        onView(withId(R.id.etFromDateTime)).perform(typeText(now.format(f)), closeSoftKeyboard());
-        onView(withId(R.id.etToDateTime)).perform(typeText(after.format(f)), closeSoftKeyboard());
-        //onView(withId(R.id.etKeywords)).perform(typeText("caption"), closeSoftKeyboard());
+        onView(withId(R.id.etFromDateTime)).perform(clearText());
+        onView(withId(R.id.etToDateTime)).perform(clearText());
+        onView(withId(R.id.etFromDateTime)).perform(typeText(nowS), closeSoftKeyboard());
+        onView(withId(R.id.etToDateTime)).perform(typeText(afterS), closeSoftKeyboard());
+
+        onView(withId(R.id.etKeywords)).perform(typeText("myCaption"), closeSoftKeyboard());
         onView(withId(R.id.go)).perform(click());
-        onView(withId(R.id.Gallery)).check(matches(withResourceName("testFile.jpg")));
-        //onView(withId(R.id.Captions)).check(matches(withText("caption")));
+        String path = file.getAbsolutePath();
+        onView(withId(R.id.Gallery)).check(matches(ImageViewSameFilenameMatcher.matchesImage(path)));
+
+
+        onView(withId(R.id.Captions)).check(matches(withText("myCaption")));
         onView(withId(R.id.RightButton)).perform(click());
         onView(withId(R.id.LeftButton)).perform(click());
     }
 
+    private File createImageFile(String caption) throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + caption + "_" + timeStamp + "_";
+        File storageDir = new File("/storage/emulated/0/Android/data/com.bcit.comp7082.group1/files/Pictures/");
+        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        return image;
+    }
 }

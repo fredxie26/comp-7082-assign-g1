@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,11 +25,13 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
@@ -83,76 +86,89 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void sendMessage(View view) {
+    public void searchImage(View view) {
         Intent intent = new Intent(this, SearchActivity.class);
-//        EditText editText = findViewById(R.id.editText);
-//        String message = editText.getText().toString();
-//        intent.putExtra(EXTRA_MESSAGE, message);
         startActivityForResult(intent, SEARCH_ACTIVITY_REQUEST_CODE);
+    }
 
-//        startActivity(intent);
+    public void shareToSocial(View view) {
+        BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+        Bitmap bitmap = drawable.getBitmap();
+
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("image/jpeg");
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+
+        String savedFile = photos.get(index);
+
+        Uri imageUri =  Uri.parse(savedFile);
+        share.putExtra(Intent.EXTRA_STREAM, imageUri);
+        startActivity(Intent.createChooser(share, "Share Image"));
+
     }
 
     private File getPhotoStoragePath() {
         return getExternalFilesDir(Environment.DIRECTORY_PICTURES);
     }
 
-//    private ArrayList<String> findPhotos() {
-//        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
-//                "/Android/data/com.bcit.comp7082.group1/files/Pictures");
-//        ArrayList<String> photos = new ArrayList<String>();
-//        File[] fList = file.listFiles();
-//        if (fList != null) {
-//            for (File f : fList) {
-//                photos.add(f.getPath());
-//            }
-//        }
-//        return photos;
-//    }
-
     private void updatePhoto(String path, String caption) {
-        String[] attr = path.split("_");
-        if (attr.length >= 3) {
-            File to = new File(attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3]);
-            File from = new File(path);
-            from.renameTo(to);
+        if(path != null && caption != null) {
+            String[] attr = path.split("_");
+            if (attr.length >= 3) {
+                File to = new File(attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3]);
+                File from = new File(path);
+                from.renameTo(to);
+                photos.set(index, to.getPath());
+            }
         }
     }
 
     public void scrollPhotos(View v) {
-//        updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
-        switch (v.getId()) {
-            case R.id.LeftButton:
-                if (index > 0) {
-                    index = index - 1;
-                }
-                break;
-            case R.id.RightButton:
-                if (index < (photos.size() - 1)) {
-                    index++;
-                }
-                break;
-            default:
-                break;
+        if(!photos.isEmpty()) {
+            updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
+
+            switch (v.getId()) {
+                case R.id.LeftButton:
+                    if (index > 0) {
+                        index = index - 1;
+                    }
+                    break;
+                case R.id.RightButton:
+                    if (index < (photos.size() - 1)) {
+                        index++;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            displayPhoto(photos.get(index));
         }
-        displayPhoto(photos.get(index));
     }
 
     private void displayPhoto(String path) {
         ImageView iv = (ImageView) findViewById(R.id.Gallery);
         TextView tv = (TextView) findViewById(R.id.Timestamp);
         EditText et = (EditText) findViewById(R.id.Captions);
-        if (path == null || path == "") {
+        if (path == null || path.equals("")) {
             iv.setImageResource(R.mipmap.ic_launcher);
             et.setText("");
             tv.setText("");
         } else {
             iv.setImageBitmap(BitmapFactory.decodeFile(path));
-            String[] attr = path.split("_");
-            et.setText(attr[1]);
-            tv.setText(attr[2]);
-            displayLocation();
+            if (path.contains("_")) {
+                String[] attr = path.split("_");
+                et.setText(attr[1]);
+                tv.setText(attr[2]);
+                displayLocation();
+            } else {
+                et.setText("");
+                tv.setText("");
+            }
         }
+        iv.setTag(path);
     }
 
     private File createImageFile() throws IOException {
@@ -161,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
         File storageDir = getPhotoStoragePath();
         File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
         currentPhotoPath = image.getAbsolutePath();
+        displayPhoto(currentPhotoPath);
         return image;
     }
 
@@ -180,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
                     photos.add(f.getPath());
             }
         }
+        photos.sort(Collections.<String>reverseOrder());
         return photos;
     }
 
@@ -188,13 +206,12 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SEARCH_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                DateFormat format = new SimpleDateFormat("yyyy‐MM‐dd HH:mm:ss");
                 Date startTimestamp, endTimestamp;
                 try {
                     String from = (String) data.getStringExtra("STARTTIMESTAMP");
                     String to = (String) data.getStringExtra("ENDTIMESTAMP");
-                    startTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(from);
-                    endTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(to);
+                    startTimestamp= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(from);
+                    endTimestamp= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(to);
                 } catch (Exception ex) {
                     startTimestamp = null;
                     endTimestamp = null;
