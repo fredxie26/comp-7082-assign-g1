@@ -20,6 +20,7 @@ import android.widget.TextView;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
         String savedFile = photos.get(index);
 
-        Uri imageUri =  Uri.parse(savedFile);
+        Uri imageUri = Uri.parse(savedFile);
         share.putExtra(Intent.EXTRA_STREAM, imageUri);
         startActivity(Intent.createChooser(share, "Share Image"));
 
@@ -102,10 +103,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updatePhoto(String path, String caption) {
-        if(path != null && caption != null) {
+        if (path != null && caption != null) {
             String[] attr = path.split("_");
             if (attr.length >= 3) {
-                File to = new File(attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3]);
+                File to = new File(attr[0] + "_" + attr[1] + "_" + attr[2] + "_" + caption + "_" + attr[4]);
                 File from = new File(path);
                 from.renameTo(to);
                 photos.set(index, to.getPath());
@@ -114,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scrollPhotos(View v) {
-        if(!photos.isEmpty()) {
+        if (!photos.isEmpty()) {
             updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
 
             switch (v.getId()) {
@@ -147,8 +148,16 @@ public class MainActivity extends AppCompatActivity {
             iv.setImageBitmap(BitmapFactory.decodeFile(path));
             if (path.contains("_")) {
                 String[] attr = path.split("_");
-                et.setText(attr[1]);
-                tv.setText(attr[2]);
+                SimpleDateFormat fileToDateConversion = new SimpleDateFormat("yyyyMMddHHmmss");
+                SimpleDateFormat timeStampDisplay = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                try {
+                    Date dateTime = fileToDateConversion.parse(attr[1] + attr[2]);
+                    String dateTimeTag = timeStampDisplay.format(dateTime);
+                    tv.setText(dateTimeTag);
+                } catch (ParseException ex) {
+                    tv.setText("");
+                }
+                et.setText(attr[3]);
             } else {
                 et.setText("");
                 tv.setText("");
@@ -159,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String ImageFileName = "JPEG_" + timeStamp + "_";
+        String ImageFileName = "JPEG_" + timeStamp + "_" + "caption" + "_";
         File storageDir = getPhotoStoragePath();
         File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
         currentPhotoPath = image.getAbsolutePath();
