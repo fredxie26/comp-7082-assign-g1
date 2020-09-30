@@ -20,7 +20,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -29,13 +28,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<String> photos = null;
     private int index = 0;
-    final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
     File photoFile = null;
 
     ImageView imageView;
