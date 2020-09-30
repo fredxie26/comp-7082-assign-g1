@@ -180,12 +180,17 @@ public class MainActivity extends AppCompatActivity {
         File path = getPhotoStoragePath();
         ArrayList<String> photos = new ArrayList<String>();
         File[] fList = path.listFiles();
+        long millisec;
+        Date dt;
         if (fList != null) {
             for (File f : fList) {
-                if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= startTimestamp.getTime()
-                        && f.lastModified() <= endTimestamp.getTime())
-                ) && (keywords == "" || f.getPath().contains(keywords)))
+                millisec = f.lastModified();
+                dt = new Date(millisec);
+                if (((startTimestamp == null && endTimestamp == null) ||
+                        (dt.getTime() >= startTimestamp.getTime() && dt.getTime()  <= endTimestamp.getTime() )
+                ) && (keywords == "" || f.getPath().contains(keywords))) {
                     photos.add(f.getPath());
+                }
             }
         }
         photos.sort(Collections.<String>reverseOrder());
