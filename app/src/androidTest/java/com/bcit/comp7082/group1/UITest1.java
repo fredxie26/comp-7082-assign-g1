@@ -62,7 +62,7 @@ public class UITest1 {
 
     private File createImageFile(String caption) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + caption + "_" + timeStamp + "_";
+        String imageFileName = "JPEG_" + timeStamp + "_" + caption + "_";
         File storageDir = new File("/storage/emulated/0/Android/data/com.bcit.comp7082.group1/files/Pictures/");
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
         return image;

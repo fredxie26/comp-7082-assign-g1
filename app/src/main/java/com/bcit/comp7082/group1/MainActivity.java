@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,8 +87,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void searchImage(View view) {
-        TextView tv = (TextView) findViewById(R.id.Location);
-        tv.setText("");
         Intent intent = new Intent(this, SearchActivity.class);
         startActivityForResult(intent, SEARCH_ACTIVITY_REQUEST_CODE);
     }
@@ -119,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         if (path != null && caption != null) {
             String[] attr = path.split("_");
             if (attr.length >= 3) {
-                File to = new File(attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3]);
+                File to = new File(attr[0] + "_" + attr[1] + "_" + attr[2] + "_" + caption + "_" + attr[4]);
                 File from = new File(path);
                 from.renameTo(to);
                 photos.set(index, to.getPath());
@@ -153,20 +152,31 @@ public class MainActivity extends AppCompatActivity {
         ImageView iv = (ImageView) findViewById(R.id.Gallery);
         TextView tv = (TextView) findViewById(R.id.Timestamp);
         EditText et = (EditText) findViewById(R.id.Captions);
+        TextView lv = (TextView) findViewById(R.id.Location);
         if (path == null || path.equals("")) {
             iv.setImageResource(R.mipmap.ic_launcher);
             et.setText("");
             tv.setText("");
+            lv.setText("");
         } else {
             iv.setImageBitmap(BitmapFactory.decodeFile(path));
             if (path.contains("_")) {
                 String[] attr = path.split("_");
-                et.setText(attr[1]);
-                tv.setText(attr[2]);
+                SimpleDateFormat fileToDateConversion = new SimpleDateFormat("yyyyMMddHHmmss");
+                SimpleDateFormat timeStampDisplay = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                try {
+                    Date dateTime = fileToDateConversion.parse(attr[1] + attr[2]);
+                    String dateTimeTag = timeStampDisplay.format(dateTime);
+                    tv.setText(dateTimeTag);
+                } catch (ParseException ex) {
+                    tv.setText("");
+                }
+                et.setText(attr[3]);
                 displayLocation(path);
             } else {
                 et.setText("");
                 tv.setText("");
+                lv.setText("");
             }
         }
         iv.setTag(path);
@@ -174,11 +184,12 @@ public class MainActivity extends AppCompatActivity {
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String ImageFileName = "JPEG_" + timeStamp + "_";
+        String ImageFileName = "JPEG_" + timeStamp + "_" + "caption" + "_";
         File storageDir = getPhotoStoragePath();
         File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
 
         currentPhotoPath = image.getAbsolutePath();
+        displayPhoto(currentPhotoPath);
         return image;
     }
 
@@ -188,16 +199,20 @@ public class MainActivity extends AppCompatActivity {
         File path = getPhotoStoragePath();
         ArrayList<String> photos = new ArrayList<String>();
         File[] fList = path.listFiles();
-
-        if (fList != null && fList.length != 0) {
+        long millisec;
+        Date dt;
+        if (fList != null) {
             for (File f : fList) {
+                millisec = f.lastModified();
+                dt = new Date(millisec);
                 double[] laglon = helper.retrieveGeoLocation(f.getPath());
                 if (((startTimestamp == null && endTimestamp == null) ||
-                        (f.lastModified() >= startTimestamp.getTime() && f.lastModified() <= endTimestamp.getTime())) &&
-                        (keywords == "" || f.getPath().contains(keywords)) &&
+                        (dt.getTime() >= startTimestamp.getTime() && dt.getTime()  <= endTimestamp.getTime() )
+                ) && (keywords == "" || f.getPath().contains(keywords)) &&
                         (((latitude == "" || latitude.isEmpty()) && (longitude == "" || longitude.isEmpty())) ||
-                        (laglon != null && latitude.equals(Double.toString(laglon[0])) && longitude.equals(Double.toString(laglon[1])) )))
+                                (laglon != null && latitude.equals(Double.toString(laglon[0])) && longitude.equals(Double.toString(laglon[1])) ))) {
                     photos.add(f.getPath());
+                }
             }
         }
         photos.sort(Collections.<String>reverseOrder());
@@ -271,8 +286,8 @@ public class MainActivity extends AppCompatActivity {
         if(laglon != null) {
             String text = "Latitude: " + Double.toString(laglon[0]) + System.lineSeparator();
             text += "Longitude: " + Double.toString(laglon[1]);
-            TextView tv = (TextView) findViewById(R.id.Location);
-            tv.setText(text);
+            TextView lv = (TextView) findViewById(R.id.Location);
+            lv.setText(text);
         }
 
     }
