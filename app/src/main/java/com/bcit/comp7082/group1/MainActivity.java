@@ -197,9 +197,6 @@ public class MainActivity extends AppCompatActivity {
         if (fList != null && fList.length != 0) {
             for (File f : fList) {
                 double[] laglon = helper.retrieveGeoLocation(f.getPath());
-                System.out.println("|||||||||||||||");
-                System.out.println(latitude);
-                System.out.println(longitude);
                 if (((startTimestamp == null && endTimestamp == null) ||
                         (f.lastModified() >= startTimestamp.getTime() && f.lastModified() <= endTimestamp.getTime())) &&
                         (keywords == "" || f.getPath().contains(keywords)) &&
