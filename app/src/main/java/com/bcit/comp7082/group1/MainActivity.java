@@ -206,11 +206,12 @@ public class MainActivity extends AppCompatActivity {
                 millisec = f.lastModified();
                 dt = new Date(millisec);
                 double[] laglon = helper.retrieveGeoLocation(f.getPath());
-                if (((startTimestamp == null && endTimestamp == null) ||
-                        (dt.getTime() >= startTimestamp.getTime() && dt.getTime()  <= endTimestamp.getTime() )
-                ) && (keywords == "" || f.getPath().contains(keywords)) &&
-                        (((latitude == "" || latitude.isEmpty()) && (longitude == "" || longitude.isEmpty())) ||
-                                (laglon != null && latitude.equals(Double.toString(laglon[0])) && longitude.equals(Double.toString(laglon[1])) ))) {
+                if ((startTimestamp == null || dt.getTime() >= startTimestamp.getTime()) &&
+                    (endTimestamp == null || dt.getTime() <= endTimestamp.getTime()) &&
+                    (keywords == "" || keywords.isEmpty() || f.getPath().contains(keywords)) &&
+                    (latitude == "" || latitude.isEmpty() || (laglon != null && latitude.equals(Double.toString(laglon[0])))) &&
+                    (longitude == "" || longitude.isEmpty() || (laglon != null && longitude.equals(Double.toString(laglon[1])))))
+                {
                     photos.add(f.getPath());
                 }
             }
