@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.Gallery);
 
-        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "", "", "");
+        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
         if (photos.size() == 0) {
             displayPhoto(null);
         } else {
@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords,
-                                         String latitude, String longitude) {
+                                         Double latitude, Double longitude) {
 
         File path = getPhotoStoragePath();
         ArrayList<String> photos = new ArrayList<String>();
@@ -208,8 +208,8 @@ public class MainActivity extends AppCompatActivity {
                 if ((startTimestamp == null || dt.getTime() >= startTimestamp.getTime()) &&
                     (endTimestamp == null || dt.getTime() <= endTimestamp.getTime()) &&
                     (keywords.equals("") || keywords.isEmpty() || f.getPath().contains(keywords)) &&
-                    (latitude.equals("") || latitude.isEmpty() || (laglon != null && latitude.equals(Double.toString(laglon[0])))) &&
-                    (longitude.equals("") || longitude.isEmpty() || (laglon != null && longitude.equals(Double.toString(laglon[1])))))
+                    (latitude == null || (laglon != null && latitude >= Math.min(laglon[0], laglon[1]) && latitude <= Math.max(laglon[0], laglon[1]) )) &&
+                    (longitude == null || (laglon != null && longitude >= Math.min(laglon[0], laglon[1]) && longitude <= Math.max(laglon[0], laglon[1]) )))
                 {
                     photos.add(f.getPath());
                 }
@@ -225,18 +225,24 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == SEARCH_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Date startTimestamp, endTimestamp;
+                Double latitude, longitude;
                 try {
                     String from = (String) data.getStringExtra("STARTTIMESTAMP");
                     String to = (String) data.getStringExtra("ENDTIMESTAMP");
+                    String lat = (String) data.getStringExtra("LATITUDE");
+                    String lon = (String) data.getStringExtra("LONGITUDE");
                     startTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(from);
                     endTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(to);
+                    latitude = Double.parseDouble(lat);
+                    longitude = Double.parseDouble(lon);
                 } catch (Exception ex) {
                     startTimestamp = null;
                     endTimestamp = null;
+                    latitude = null;
+                    longitude = null;
                 }
                 String keywords = (String) data.getStringExtra("KEYWORDS");
-                String latitude = (String) data.getStringExtra("LATITUDE");
-                String longitude = (String) data.getStringExtra("LONGITUDE");
+
                 index = 0;
                 photos = findPhotos(startTimestamp, endTimestamp, keywords, latitude, longitude);
 
@@ -248,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             Log.d("Onactivity Result", requestCode + "second if statement" + resultCode);
-            photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "", "", "");
+            photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
             Log.d("photos", "size: " + photos.size());
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
