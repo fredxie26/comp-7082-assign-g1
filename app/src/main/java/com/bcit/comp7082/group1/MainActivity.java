@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int SEARCH_ACTIVITY_REQUEST_CODE = 2;
-    private Helper helper = new Helper();
     String currentPhotoPath;
 
     private ArrayList<String> photos = null;
@@ -205,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
             for (File f : fList) {
                 millisec = f.lastModified();
                 dt = new Date(millisec);
-                double[] laglon = helper.retrieveGeoLocation(f.getPath());
+                double[] laglon = Helper.retrieveGeoLocation(f.getPath());
                 if ((startTimestamp == null || dt.getTime() >= startTimestamp.getTime()) &&
                     (endTimestamp == null || dt.getTime() <= endTimestamp.getTime()) &&
                     (keywords.equals("") || keywords.isEmpty() || f.getPath().contains(keywords)) &&
@@ -261,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onSuccess(Location location) {
                             // Got last known location. In some rare situations this can be null.
                             if (location != null) {
-                                helper.geoTag(photoFile.getPath(), location.getLatitude(), location.getLongitude());
+                                Helper.geoTag(photoFile.getPath(), location.getLatitude(), location.getLongitude());
                                 displayLocation(photoFile.getPath());
                             }
                         }
@@ -282,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
     private void displayLocation(String path) {
         double[] laglon = null;
         if(path != null) {
-            laglon = helper.retrieveGeoLocation(path);
+            laglon = Helper.retrieveGeoLocation(path);
         }
         if(laglon != null) {
             String text = "Latitude: " + Double.toString(laglon[0]) + System.lineSeparator();

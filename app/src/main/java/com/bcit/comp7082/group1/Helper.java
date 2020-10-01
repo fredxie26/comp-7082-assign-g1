@@ -3,7 +3,7 @@ package com.bcit.comp7082.group1;
 import androidx.exifinterface.media.ExifInterface;
 
 public class Helper {
-    public void geoTag(String filename, Double lng, Double lat){
+    public static void geoTag(String filename, Double lng, Double lat){
         ExifInterface exif;
         try {
             exif = new ExifInterface(filename);
@@ -18,7 +18,7 @@ public class Helper {
 
     }
 
-    public double[] retrieveGeoLocation(String filename) {
+    public static double[] retrieveGeoLocation(String filename) {
         ExifInterface exif;
         double[] latLong = null;
         try {
