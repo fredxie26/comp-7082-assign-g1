@@ -208,9 +208,9 @@ public class MainActivity extends AppCompatActivity {
                 double[] laglon = helper.retrieveGeoLocation(f.getPath());
                 if ((startTimestamp == null || dt.getTime() >= startTimestamp.getTime()) &&
                     (endTimestamp == null || dt.getTime() <= endTimestamp.getTime()) &&
-                    (keywords == "" || keywords.isEmpty() || f.getPath().contains(keywords)) &&
-                    (latitude == "" || latitude.isEmpty() || (laglon != null && latitude.equals(Double.toString(laglon[0])))) &&
-                    (longitude == "" || longitude.isEmpty() || (laglon != null && longitude.equals(Double.toString(laglon[1])))))
+                    (keywords.equals("") || keywords.isEmpty() || f.getPath().contains(keywords)) &&
+                    (latitude.equals("") || latitude.isEmpty() || (laglon != null && latitude.equals(Double.toString(laglon[0])))) &&
+                    (longitude.equals("") || longitude.isEmpty() || (laglon != null && longitude.equals(Double.toString(laglon[1])))))
                 {
                     photos.add(f.getPath());
                 }
