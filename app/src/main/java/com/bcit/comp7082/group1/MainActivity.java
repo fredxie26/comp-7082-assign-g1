@@ -1,12 +1,16 @@
 package com.bcit.comp7082.group1;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,6 +20,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -34,19 +42,21 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<String> photos = null;
     private int index = 0;
-    public static final String EXTRA_MESSAGE = "com.bcit.comp7082.MESSAGE";
     File photoFile = null;
 
     ImageView imageView;
+    private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         imageView = findViewById(R.id.Gallery);
 
-        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
+        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
         if (photos.size() == 0) {
             displayPhoto(null);
         } else {
@@ -70,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                displayPhoto(currentPhotoPath);
             }
         }
     }
@@ -140,10 +151,12 @@ public class MainActivity extends AppCompatActivity {
         ImageView iv = (ImageView) findViewById(R.id.Gallery);
         TextView tv = (TextView) findViewById(R.id.Timestamp);
         EditText et = (EditText) findViewById(R.id.Captions);
+        TextView lv = (TextView) findViewById(R.id.Location);
         if (path == null || path.equals("")) {
             iv.setImageResource(R.mipmap.ic_launcher);
             et.setText("");
             tv.setText("");
+            lv.setText("");
         } else {
             iv.setImageBitmap(BitmapFactory.decodeFile(path));
             if (path.contains("_")) {
@@ -158,9 +171,11 @@ public class MainActivity extends AppCompatActivity {
                     tv.setText("");
                 }
                 et.setText(attr[3]);
+                displayLocation(path);
             } else {
                 et.setText("");
                 tv.setText("");
+                lv.setText("");
             }
         }
         iv.setTag(path);
@@ -171,12 +186,15 @@ public class MainActivity extends AppCompatActivity {
         String ImageFileName = "JPEG_" + timeStamp + "_" + "caption" + "_";
         File storageDir = getPhotoStoragePath();
         File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
+
         currentPhotoPath = image.getAbsolutePath();
         displayPhoto(currentPhotoPath);
         return image;
     }
 
-    private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords) {
+    private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords,
+                                         Double latitude, Double longitude) {
+
         File path = getPhotoStoragePath();
         ArrayList<String> photos = new ArrayList<String>();
         File[] fList = path.listFiles();
@@ -186,9 +204,13 @@ public class MainActivity extends AppCompatActivity {
             for (File f : fList) {
                 millisec = f.lastModified();
                 dt = new Date(millisec);
-                if (((startTimestamp == null && endTimestamp == null) ||
-                        (dt.getTime() >= startTimestamp.getTime() && dt.getTime()  <= endTimestamp.getTime() )
-                ) && (keywords == "" || f.getPath().contains(keywords))) {
+                double[] laglon = Helper.retrieveGeoLocation(f.getPath());
+                if ((startTimestamp == null || dt.getTime() >= startTimestamp.getTime()) &&
+                    (endTimestamp == null || dt.getTime() <= endTimestamp.getTime()) &&
+                    (keywords.equals("") || keywords.isEmpty() || f.getPath().contains(keywords)) &&
+                    (latitude == null || (laglon != null && latitude >= Math.min(laglon[0], laglon[1]) && latitude <= Math.max(laglon[0], laglon[1]) )) &&
+                    (longitude == null || (laglon != null && longitude >= Math.min(laglon[0], laglon[1]) && longitude <= Math.max(laglon[0], laglon[1]) )))
+                {
                     photos.add(f.getPath());
                 }
             }
@@ -203,18 +225,26 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == SEARCH_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Date startTimestamp, endTimestamp;
+                Double latitude, longitude;
                 try {
                     String from = (String) data.getStringExtra("STARTTIMESTAMP");
                     String to = (String) data.getStringExtra("ENDTIMESTAMP");
+                    String lat = (String) data.getStringExtra("LATITUDE");
+                    String lon = (String) data.getStringExtra("LONGITUDE");
                     startTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(from);
                     endTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(to);
+                    latitude = Double.parseDouble(lat);
+                    longitude = Double.parseDouble(lon);
                 } catch (Exception ex) {
                     startTimestamp = null;
                     endTimestamp = null;
+                    latitude = null;
+                    longitude = null;
                 }
                 String keywords = (String) data.getStringExtra("KEYWORDS");
+
                 index = 0;
-                photos = findPhotos(startTimestamp, endTimestamp, keywords);
+                photos = findPhotos(startTimestamp, endTimestamp, keywords, latitude, longitude);
 
                 if (photos.size() == 0) {
                     displayPhoto(null);
@@ -224,8 +254,24 @@ public class MainActivity extends AppCompatActivity {
             }
         } else if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             Log.d("Onactivity Result", requestCode + "second if statement" + resultCode);
-            photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
+            photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
             Log.d("photos", "size: " + photos.size());
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                System.out.println("Permisson not granted!");
+            }
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            // Got last known location. In some rare situations this can be null.
+                            if (location != null) {
+                                Helper.geoTag(photoFile.getPath(), location.getLatitude(), location.getLongitude());
+                                displayLocation(photoFile.getPath());
+                            }
+                        }
+                    });
+
             Uri uri = Uri.fromFile(photoFile);
             Bitmap bitmap;
             try {
@@ -238,4 +284,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void displayLocation(String path) {
+        double[] laglon = null;
+        if(path != null) {
+            laglon = Helper.retrieveGeoLocation(path);
+        }
+        if(laglon != null) {
+            String text = "Latitude: " + Double.toString(laglon[0]) + System.lineSeparator();
+            text += "Longitude: " + Double.toString(laglon[1]);
+            TextView lv = (TextView) findViewById(R.id.Location);
+            lv.setText(text);
+        }
+
+    }
 }
