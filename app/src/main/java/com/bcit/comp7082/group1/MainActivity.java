@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("photos", "size: " + photos.size());
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                System.out.println("Permisson not granted!");
+                System.out.println("Permission not granted!");
             }
             fusedLocationClient.getLastLocation()
                     .addOnSuccessListener(this, new OnSuccessListener<Location>() {
