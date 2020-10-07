@@ -102,7 +102,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="249dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginBottom="268dp"
         android:text="Latitude" />
 
     <TextView
@@ -112,26 +113,50 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="2dp"
-        android:layout_marginBottom="166dp"
+        android:layout_marginBottom="173dp"
         android:text="Longitude" />
 
     <EditText
-        android:id="@+id/etLatitude"
+        android:id="@+id/etLatitudeFrom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="231dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginBottom="264dp"
         android:ems="10"
         android:inputType="textPersonName" />
 
     <EditText
-        android:id="@+id/etLongitude"
+        android:id="@+id/etLatitudeTo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="156dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginBottom="211dp"
+        android:ems="10"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/etLongitudeFrom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="146dp"
+        android:ems="10"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/etLongitudeTo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="3dp"
+        android:layout_marginBottom="90dp"
         android:ems="10"
         android:inputType="textPersonName" />
 </RelativeLayout>

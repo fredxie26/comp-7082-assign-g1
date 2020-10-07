@@ -12,7 +12,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.logging.Logger;
 
 public class SearchActivity extends AppCompatActivity {
     @Override
@@ -43,13 +42,17 @@ public class SearchActivity extends AppCompatActivity {
         EditText from = (EditText) findViewById(R.id.etFromDateTime);
         EditText to = (EditText) findViewById(R.id.etToDateTime);
         EditText keywords = (EditText) findViewById(R.id.etKeywords);
-        EditText latitude = (EditText) findViewById(R.id.etLatitude);
-        EditText longitude = (EditText) findViewById(R.id.etLongitude);
+        EditText latitudeFrom = (EditText) findViewById(R.id.etLatitudeFrom);
+        EditText latitudeTo = (EditText) findViewById(R.id.etLatitudeTo);
+        EditText longitudeFrom = (EditText) findViewById(R.id.etLongitudeFrom);
+        EditText longitudeTo = (EditText) findViewById(R.id.etLongitudeTo);
         i.putExtra("STARTTIMESTAMP", from.getText() != null ? from.getText().toString() : "");
         i.putExtra("ENDTIMESTAMP", to.getText() != null ? to.getText().toString() : "");
         i.putExtra("KEYWORDS", keywords.getText() != null ? keywords.getText().toString() : "");
-        i.putExtra("LATITUDE", latitude.getText() != null ? latitude.getText().toString() : "");
-        i.putExtra("LONGITUDE", longitude.getText() != null ? longitude.getText().toString() : "");
+        i.putExtra("LATITUDEFROM", latitudeFrom.getText() != null ? latitudeFrom.getText().toString() : "");
+        i.putExtra("LATITUDETO", latitudeTo.getText() != null ? latitudeTo.getText().toString() : "");
+        i.putExtra("LONGITUDEFROM", longitudeFrom.getText() != null ? longitudeFrom.getText().toString() : "");
+        i.putExtra("LONGITUDETO", longitudeTo.getText() != null ? longitudeTo.getText().toString() : "");
         setResult(RESULT_OK, i);
         finish();
     }
