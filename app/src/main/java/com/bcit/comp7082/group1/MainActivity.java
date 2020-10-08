@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords,
-                                         Double latitude, Double longitude) {
+                                         double[] latRange, double[] lonRange) {
 
         File path = getPhotoStoragePath();
         ArrayList<String> photos = new ArrayList<String>();
@@ -208,8 +208,8 @@ public class MainActivity extends AppCompatActivity {
                 if ((startTimestamp == null || dt.getTime() >= startTimestamp.getTime()) &&
                     (endTimestamp == null || dt.getTime() <= endTimestamp.getTime()) &&
                     (keywords.equals("") || keywords.isEmpty() || f.getPath().contains(keywords)) &&
-                    (latitude == null || (laglon != null && latitude >= Math.min(laglon[0], laglon[1]) && latitude <= Math.max(laglon[0], laglon[1]) )) &&
-                    (longitude == null || (laglon != null && longitude >= Math.min(laglon[0], laglon[1]) && longitude <= Math.max(laglon[0], laglon[1]) )))
+                    (latRange == null || (laglon != null && laglon[0] >= Math.min(latRange[0], latRange[1]) && laglon[0] <= Math.max(latRange[0], latRange[1]) )) &&
+                    (lonRange == null || (laglon != null && laglon[1] >= Math.min(lonRange[0], lonRange[1]) && laglon[1] <= Math.max(lonRange[0], lonRange[1]) )))
                 {
                     photos.add(f.getPath());
                 }
@@ -225,26 +225,33 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == SEARCH_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Date startTimestamp, endTimestamp;
-                Double latitude, longitude;
+                double[] latRange = new double[2];
+                double[] lonRange = new double[2];
                 try {
                     String from = (String) data.getStringExtra("STARTTIMESTAMP");
                     String to = (String) data.getStringExtra("ENDTIMESTAMP");
-                    String lat = (String) data.getStringExtra("LATITUDE");
-                    String lon = (String) data.getStringExtra("LONGITUDE");
+                    String latFrom = (String) data.getStringExtra("LATITUDEFROM");
+                    String latTo = (String) data.getStringExtra("LATITUDETO");
+                    String lonFrom = (String) data.getStringExtra("LONGITUDEFROM");
+                    String lonTo = (String) data.getStringExtra("LONGITUDETO");
+
                     startTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(from);
                     endTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(to);
-                    latitude = Double.parseDouble(lat);
-                    longitude = Double.parseDouble(lon);
+
+                    latRange[0] = Double.parseDouble(latFrom);
+                    latRange[1] = Double.parseDouble(latTo);
+                    lonRange[0] = Double.parseDouble(lonFrom);
+                    lonRange[1] = Double.parseDouble(lonTo);
                 } catch (Exception ex) {
                     startTimestamp = null;
                     endTimestamp = null;
-                    latitude = null;
-                    longitude = null;
+                    latRange = null;
+                    lonRange = null;
                 }
                 String keywords = (String) data.getStringExtra("KEYWORDS");
 
                 index = 0;
-                photos = findPhotos(startTimestamp, endTimestamp, keywords, latitude, longitude);
+                photos = findPhotos(startTimestamp, endTimestamp, keywords, latRange, lonRange);
 
                 if (photos.size() == 0) {
                     displayPhoto(null);
