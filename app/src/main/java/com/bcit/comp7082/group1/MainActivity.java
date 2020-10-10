@@ -46,23 +46,44 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView imageView;
     private FusedLocationProviderClient fusedLocationClient;
+    private MainPresenter mainPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        mainPresenter = new MainPresenter(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         imageView = findViewById(R.id.Gallery);
 
-        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
+        photos = mainPresenter.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
         if (photos.size() == 0) {
-            displayPhoto(null);
+            mainPresenter.displayPhotoInfo(null);
+            mainPresenter.displayLocationInfo(null);
         } else {
-            displayPhoto(photos.get(index));
+            mainPresenter.displayPhotoInfo(photos.get(index));
+            mainPresenter.displayLocationInfo(photos.get(index));
         }
+    }
 
+    public void displayPhoto(String dateTimeTag, String caption, Bitmap image, String path) {
+        ImageView iv = (ImageView) findViewById(R.id.Gallery);
+        TextView tv = (TextView) findViewById(R.id.Timestamp);
+        EditText et = (EditText) findViewById(R.id.Captions);
+        if(image == null) {
+            iv.setImageResource(R.mipmap.ic_launcher);
+        } else {
+            iv.setImageBitmap(image);
+        }
+        iv.setTag(path);
+        et.setText(caption);
+        tv.setText(dateTimeTag);
+    }
+
+    public void displayLocation(String location) {
+        TextView lv = (TextView) findViewById(R.id.Location);
+        lv.setText(location);
     }
 
     public void dispatchTakePictureIntent(View view) {
@@ -80,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                displayPhoto(currentPhotoPath);
+                mainPresenter.displayPhotoInfo(currentPhotoPath);
             }
         }
     }
@@ -109,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private File getPhotoStoragePath() {
+    public File getPhotoStoragePath() {
         return getExternalFilesDir(Environment.DIRECTORY_PICTURES);
     }
 
@@ -143,42 +164,8 @@ public class MainActivity extends AppCompatActivity {
                 default:
                     break;
             }
-            displayPhoto(photos.get(index));
+            mainPresenter.displayPhotoInfo(photos.get(index));
         }
-    }
-
-    private void displayPhoto(String path) {
-        ImageView iv = (ImageView) findViewById(R.id.Gallery);
-        TextView tv = (TextView) findViewById(R.id.Timestamp);
-        EditText et = (EditText) findViewById(R.id.Captions);
-        TextView lv = (TextView) findViewById(R.id.Location);
-        if (path == null || path.equals("")) {
-            iv.setImageResource(R.mipmap.ic_launcher);
-            et.setText("");
-            tv.setText("");
-            lv.setText("");
-        } else {
-            iv.setImageBitmap(BitmapFactory.decodeFile(path));
-            if (path.contains("_")) {
-                String[] attr = path.split("_");
-                SimpleDateFormat fileToDateConversion = new SimpleDateFormat("yyyyMMddHHmmss");
-                SimpleDateFormat timeStampDisplay = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                try {
-                    Date dateTime = fileToDateConversion.parse(attr[1] + attr[2]);
-                    String dateTimeTag = timeStampDisplay.format(dateTime);
-                    tv.setText(dateTimeTag);
-                } catch (ParseException ex) {
-                    tv.setText("");
-                }
-                et.setText(attr[3]);
-                displayLocation(path);
-            } else {
-                et.setText("");
-                tv.setText("");
-                lv.setText("");
-            }
-        }
-        iv.setTag(path);
     }
 
     private File createImageFile() throws IOException {
@@ -188,35 +175,8 @@ public class MainActivity extends AppCompatActivity {
         File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
 
         currentPhotoPath = image.getAbsolutePath();
-        displayPhoto(currentPhotoPath);
+        mainPresenter.displayPhotoInfo(currentPhotoPath);
         return image;
-    }
-
-    private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords,
-                                         double[] latRange, double[] lonRange) {
-
-        File path = getPhotoStoragePath();
-        ArrayList<String> photos = new ArrayList<String>();
-        File[] fList = path.listFiles();
-        long millisec;
-        Date dt;
-        if (fList != null) {
-            for (File f : fList) {
-                millisec = f.lastModified();
-                dt = new Date(millisec);
-                double[] laglon = Helper.retrieveGeoLocation(f.getPath());
-                if ((startTimestamp == null || dt.getTime() >= startTimestamp.getTime()) &&
-                    (endTimestamp == null || dt.getTime() <= endTimestamp.getTime()) &&
-                    (keywords.equals("") || keywords.isEmpty() || f.getPath().contains(keywords)) &&
-                    (latRange == null || (laglon != null && laglon[0] >= Math.min(latRange[0], latRange[1]) && laglon[0] <= Math.max(latRange[0], latRange[1]) )) &&
-                    (lonRange == null || (laglon != null && laglon[1] >= Math.min(lonRange[0], lonRange[1]) && laglon[1] <= Math.max(lonRange[0], lonRange[1]) )))
-                {
-                    photos.add(f.getPath());
-                }
-            }
-        }
-        photos.sort(Collections.<String>reverseOrder());
-        return photos;
     }
 
     @Override
@@ -251,17 +211,17 @@ public class MainActivity extends AppCompatActivity {
                 String keywords = (String) data.getStringExtra("KEYWORDS");
 
                 index = 0;
-                photos = findPhotos(startTimestamp, endTimestamp, keywords, latRange, lonRange);
+                photos = mainPresenter.findPhotos(startTimestamp, endTimestamp, keywords, latRange, lonRange);
 
                 if (photos.size() == 0) {
-                    displayPhoto(null);
+                    mainPresenter.displayPhotoInfo(null);
                 } else {
-                    displayPhoto(photos.get(index));
+                    mainPresenter.displayPhotoInfo(photos.get(index));
                 }
             }
         } else if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             Log.d("Onactivity Result", requestCode + "second if statement" + resultCode);
-            photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
+            photos = mainPresenter.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
             Log.d("photos", "size: " + photos.size());
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -274,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                             // Got last known location. In some rare situations this can be null.
                             if (location != null) {
                                 Helper.geoTag(photoFile.getPath(), location.getLatitude(), location.getLongitude());
-                                displayLocation(photoFile.getPath());
+                                mainPresenter.displayLocationInfo(photoFile.getPath());
                             }
                         }
                     });
@@ -291,17 +251,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void displayLocation(String path) {
-        double[] laglon = null;
-        if(path != null) {
-            laglon = Helper.retrieveGeoLocation(path);
-        }
-        if(laglon != null) {
-            String text = "Latitude: " + Double.toString(laglon[0]) + System.lineSeparator();
-            text += "Longitude: " + Double.toString(laglon[1]);
-            TextView lv = (TextView) findViewById(R.id.Location);
-            lv.setText(text);
-        }
 
-    }
 }
