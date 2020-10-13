@@ -5,10 +5,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.net.Uri;
@@ -17,6 +17,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,17 +29,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int SEARCH_ACTIVITY_REQUEST_CODE = 2;
-    String currentPhotoPath;
 
     private ArrayList<String> photos = null;
     private int index = 0;
@@ -47,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageView;
     private FusedLocationProviderClient fusedLocationClient;
     private MainPresenter mainPresenter;
+    public static Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         imageView = findViewById(R.id.Gallery);
+        context = getApplicationContext();
 
         photos = mainPresenter.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
         if (photos.size() == 0) {
@@ -65,6 +65,26 @@ public class MainActivity extends AppCompatActivity {
             mainPresenter.displayPhotoInfo(photos.get(index));
             mainPresenter.displayLocationInfo(photos.get(index));
         }
+
+        Button snap_button = (Button) findViewById(R.id.snap_button);
+        Button share_button = (Button) findViewById(R.id.share_button);
+        Button search_button = (Button) findViewById(R.id.search_button);
+
+        snap_button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                photoFile = mainPresenter.dispatchTakePictureIntent(REQUEST_IMAGE_CAPTURE, context);
+            }
+        });
+        share_button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mainPresenter.shareToSocial(imageView, index,photos);
+            }
+        });
+        search_button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mainPresenter.searchImage(context);
+            }
+        });
     }
 
     public void displayPhoto(String dateTimeTag, String caption, Bitmap image, String path) {
@@ -86,49 +106,30 @@ public class MainActivity extends AppCompatActivity {
         lv.setText(location);
     }
 
-    public void dispatchTakePictureIntent(View view) {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.bcit.comp7082.group1.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                mainPresenter.displayPhotoInfo(currentPhotoPath);
-            }
-        }
-    }
+//    public void dispatchTakePictureIntent() {
+//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+//            try {
+//                photoFile = createImageFile();
+//            } catch (IOException ex) {
+//                // Error occurred while creating the File
+//            }
+//            // Continue only if the File was successfully created
+//            if (photoFile != null) {
+//                Uri photoURI = FileProvider.getUriForFile(this,
+//                        "com.bcit.comp7082.group1.fileprovider",
+//                        photoFile);
+//                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+//                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+//                mainPresenter.displayPhotoInfo(currentPhotoPath);
+//            }
+//        }
+//    }
 
-    public void searchImage(View view) {
-        Intent intent = new Intent(this, SearchActivity.class);
-        startActivityForResult(intent, SEARCH_ACTIVITY_REQUEST_CODE);
-    }
-
-    public void shareToSocial(View view) {
-        BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
-        Bitmap bitmap = drawable.getBitmap();
-
-        Intent share = new Intent(Intent.ACTION_SEND);
-        share.setType("image/jpeg");
-
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-
-        String savedFile = photos.get(index);
-
-        Uri imageUri = Uri.parse(savedFile);
-        share.putExtra(Intent.EXTRA_STREAM, imageUri);
-        startActivity(Intent.createChooser(share, "Share Image"));
-
-    }
+//    public void searchImage() {
+//        Intent intent = new Intent(this, SearchActivity.class);
+//        startActivityForResult(intent, SEARCH_ACTIVITY_REQUEST_CODE);
+//    }
 
     public File getPhotoStoragePath() {
         return getExternalFilesDir(Environment.DIRECTORY_PICTURES);
@@ -168,16 +169,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String ImageFileName = "JPEG_" + timeStamp + "_" + "caption" + "_";
-        File storageDir = getPhotoStoragePath();
-        File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
-
-        currentPhotoPath = image.getAbsolutePath();
-        mainPresenter.displayPhotoInfo(currentPhotoPath);
-        return image;
-    }
+//    private File createImageFile() throws IOException {
+//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+//        String ImageFileName = "JPEG_" + timeStamp + "_" + "caption" + "_";
+//        File storageDir = getPhotoStoragePath();
+//        File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
+//
+//        currentPhotoPath = image.getAbsolutePath();
+//        mainPresenter.displayPhotoInfo(currentPhotoPath);
+//        return image;
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -219,7 +220,8 @@ public class MainActivity extends AppCompatActivity {
                     mainPresenter.displayPhotoInfo(photos.get(index));
                 }
             }
-        } else if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
+        }
+        else if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             Log.d("Onactivity Result", requestCode + "second if statement" + resultCode);
             photos = mainPresenter.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
             Log.d("photos", "size: " + photos.size());

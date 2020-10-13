@@ -1,13 +1,23 @@
 package com.bcit.comp7082.group1;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.Image;
+import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.core.content.FileProvider;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,6 +26,7 @@ import java.util.Date;
 
 public class MainPresenter {
     private final MainActivity view;
+    String currentPhotoPath;
 
     public MainPresenter(final MainActivity view) {
         this.view = view;
@@ -81,6 +92,64 @@ public class MainPresenter {
         }
         photos.sort(Collections.<String>reverseOrder());
         return photos;
+    }
+
+    public void searchImage(Context context) {
+        Intent intent = new Intent(context, SearchActivity.class);
+        view.startActivityForResult(intent, view.SEARCH_ACTIVITY_REQUEST_CODE);
+    }
+    public void shareToSocial(ImageView imageView, int index,ArrayList<String> photos) {
+
+        BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+        Bitmap bitmap = drawable.getBitmap();
+
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("image/jpeg");
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+
+        String savedFile = photos.get(index);
+
+        Uri imageUri = Uri.parse(savedFile);
+        share.putExtra(Intent.EXTRA_STREAM, imageUri);
+
+        view.startActivity(Intent.createChooser(share, "Share Image"));
+
+    }
+    public File dispatchTakePictureIntent(int REQUEST_IMAGE_CAPTURE, Context context) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File photoFile = null;
+        if (takePictureIntent.resolveActivity(view.getPackageManager()) != null) {
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(context,
+                        "com.bcit.comp7082.group1.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                view.startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                displayPhotoInfo(currentPhotoPath);
+            }
+        }
+        return photoFile;
+    }
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String ImageFileName = "JPEG_" + timeStamp + "_" + "caption" + "_";
+        File storageDir = getPhotoStoragePath();
+        File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
+        currentPhotoPath = image.getAbsolutePath();
+        displayPhotoInfo(currentPhotoPath);
+        return image;
+    }
+    public File getPhotoStoragePath() {
+        return view.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
     }
 
 }
