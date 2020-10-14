@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -32,7 +31,7 @@ public class MainPresenter {
         this.view = view;
     }
 
-    public void displayPhotoInfo(String path) {
+    public void displayPhotoInfo(String path, ImageView iv, TextView tv, EditText et) {
         String dateTimeTag = "", caption = "";
         Bitmap image = null;
         if (path != null || !path.equals("")) {
@@ -51,10 +50,10 @@ public class MainPresenter {
                 }
             }
         }
-        view.displayPhoto(dateTimeTag, caption, image, path);
+        displayPhoto(dateTimeTag, caption, image, path, iv,tv,et);
     }
 
-    public void displayLocationInfo(String path) {
+    public void displayLocationInfo(String path, TextView textview_location) {
         double[] laglon = null;
         String location = "";
         if(path != null) {
@@ -64,13 +63,13 @@ public class MainPresenter {
             location = "Latitude: " + Double.toString(laglon[0]) + System.lineSeparator();
             location += "Longitude: " + Double.toString(laglon[1]);
         }
-        view.displayLocation(location);
+        displayLocation(location, textview_location);
     }
 
     public ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords,
                                          double[] latRange, double[] lonRange) {
 
-        File path = view.getPhotoStoragePath();
+        File path = getPhotoStoragePath();
         ArrayList<String> photos = new ArrayList<String>();
         File[] fList = path.listFiles();
         long millisec;
@@ -118,12 +117,12 @@ public class MainPresenter {
         view.startActivity(Intent.createChooser(share, "Share Image"));
 
     }
-    public File dispatchTakePictureIntent(int REQUEST_IMAGE_CAPTURE, Context context) {
+    public File dispatchTakePictureIntent(int REQUEST_IMAGE_CAPTURE, Context context, ImageView iv, TextView tv, EditText et) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File photoFile = null;
         if (takePictureIntent.resolveActivity(view.getPackageManager()) != null) {
             try {
-                photoFile = createImageFile();
+                photoFile = createImageFile(iv,tv,et);
             } catch (IOException ex) {
                 // Error occurred while creating the File
             }
@@ -134,23 +133,37 @@ public class MainPresenter {
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 view.startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                displayPhotoInfo(currentPhotoPath);
+                displayPhotoInfo(currentPhotoPath,iv,tv,et);
             }
         }
         return photoFile;
     }
-    private File createImageFile() throws IOException {
+    private File createImageFile(ImageView iv, TextView tv, EditText et) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String ImageFileName = "JPEG_" + timeStamp + "_" + "caption" + "_";
         File storageDir = getPhotoStoragePath();
         File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
         currentPhotoPath = image.getAbsolutePath();
-        displayPhotoInfo(currentPhotoPath);
+        displayPhotoInfo(currentPhotoPath, iv, tv, et);
         return image;
     }
     public File getPhotoStoragePath() {
         return view.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
     }
 
+    public void displayLocation(String location, TextView textview_location) {
+//        TextView lv = (TextView) findViewById(R.id.Location);
+        textview_location.setText(location);
+    }
+    private void displayPhoto(String dateTimeTag, String caption, Bitmap image, String path, ImageView iv, TextView tv, EditText et) {
+        if(image == null) {
+            iv.setImageResource(R.mipmap.ic_launcher);
+        } else {
+            iv.setImageBitmap(image);
+        }
+        iv.setTag(path);
+        et.setText(caption);
+        tv.setText(dateTimeTag);
+    }
 }
 

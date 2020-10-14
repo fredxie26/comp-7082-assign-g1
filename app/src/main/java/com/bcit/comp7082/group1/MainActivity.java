@@ -2,18 +2,15 @@ package com.bcit.comp7082.group1;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -26,7 +23,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -41,7 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> photos = null;
     private int index = 0;
     File photoFile = null;
-
+    TextView textview_location,textview_time;
+    EditText edittext_captions;
     ImageView imageView;
     private FusedLocationProviderClient fusedLocationClient;
     private MainPresenter mainPresenter;
@@ -53,17 +50,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mainPresenter = new MainPresenter(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
         imageView = findViewById(R.id.Gallery);
         context = getApplicationContext();
-
+        textview_location = (TextView) findViewById(R.id.Location);
+        textview_time = (TextView) findViewById(R.id.Timestamp);
+        edittext_captions = (EditText) findViewById(R.id.Captions);
         photos = mainPresenter.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
+
         if (photos.size() == 0) {
-            mainPresenter.displayPhotoInfo(null);
-            mainPresenter.displayLocationInfo(null);
+            mainPresenter.displayPhotoInfo(null,imageView,textview_time,edittext_captions);
+            mainPresenter.displayLocationInfo(null,textview_location);
         } else {
-            mainPresenter.displayPhotoInfo(photos.get(index));
-            mainPresenter.displayLocationInfo(photos.get(index));
+            mainPresenter.displayPhotoInfo(photos.get(index),imageView,textview_time,edittext_captions);
+            mainPresenter.displayLocationInfo(photos.get(index),textview_location);
         }
 
         Button snap_button = (Button) findViewById(R.id.snap_button);
@@ -72,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
         snap_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                photoFile = mainPresenter.dispatchTakePictureIntent(REQUEST_IMAGE_CAPTURE, context);
+                photoFile = mainPresenter.dispatchTakePictureIntent(REQUEST_IMAGE_CAPTURE, context,imageView,textview_time,edittext_captions);
             }
         });
         share_button.setOnClickListener(new View.OnClickListener() {
@@ -85,54 +84,6 @@ public class MainActivity extends AppCompatActivity {
                 mainPresenter.searchImage(context);
             }
         });
-    }
-
-    public void displayPhoto(String dateTimeTag, String caption, Bitmap image, String path) {
-        ImageView iv = (ImageView) findViewById(R.id.Gallery);
-        TextView tv = (TextView) findViewById(R.id.Timestamp);
-        EditText et = (EditText) findViewById(R.id.Captions);
-        if(image == null) {
-            iv.setImageResource(R.mipmap.ic_launcher);
-        } else {
-            iv.setImageBitmap(image);
-        }
-        iv.setTag(path);
-        et.setText(caption);
-        tv.setText(dateTimeTag);
-    }
-
-    public void displayLocation(String location) {
-        TextView lv = (TextView) findViewById(R.id.Location);
-        lv.setText(location);
-    }
-
-//    public void dispatchTakePictureIntent() {
-//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-//            try {
-//                photoFile = createImageFile();
-//            } catch (IOException ex) {
-//                // Error occurred while creating the File
-//            }
-//            // Continue only if the File was successfully created
-//            if (photoFile != null) {
-//                Uri photoURI = FileProvider.getUriForFile(this,
-//                        "com.bcit.comp7082.group1.fileprovider",
-//                        photoFile);
-//                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-//                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-//                mainPresenter.displayPhotoInfo(currentPhotoPath);
-//            }
-//        }
-//    }
-
-//    public void searchImage() {
-//        Intent intent = new Intent(this, SearchActivity.class);
-//        startActivityForResult(intent, SEARCH_ACTIVITY_REQUEST_CODE);
-//    }
-
-    public File getPhotoStoragePath() {
-        return getExternalFilesDir(Environment.DIRECTORY_PICTURES);
     }
 
     private void updatePhoto(String path, String caption) {
@@ -165,20 +116,9 @@ public class MainActivity extends AppCompatActivity {
                 default:
                     break;
             }
-            mainPresenter.displayPhotoInfo(photos.get(index));
+            mainPresenter.displayPhotoInfo(photos.get(index),imageView,textview_time,edittext_captions);
         }
     }
-
-//    private File createImageFile() throws IOException {
-//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        String ImageFileName = "JPEG_" + timeStamp + "_" + "caption" + "_";
-//        File storageDir = getPhotoStoragePath();
-//        File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
-//
-//        currentPhotoPath = image.getAbsolutePath();
-//        mainPresenter.displayPhotoInfo(currentPhotoPath);
-//        return image;
-//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -215,9 +155,9 @@ public class MainActivity extends AppCompatActivity {
                 photos = mainPresenter.findPhotos(startTimestamp, endTimestamp, keywords, latRange, lonRange);
 
                 if (photos.size() == 0) {
-                    mainPresenter.displayPhotoInfo(null);
+                    mainPresenter.displayPhotoInfo(null,imageView,textview_time,edittext_captions);
                 } else {
-                    mainPresenter.displayPhotoInfo(photos.get(index));
+                    mainPresenter.displayPhotoInfo(photos.get(index),imageView,textview_time,edittext_captions);
                 }
             }
         }
@@ -236,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                             // Got last known location. In some rare situations this can be null.
                             if (location != null) {
                                 Helper.geoTag(photoFile.getPath(), location.getLatitude(), location.getLongitude());
-                                mainPresenter.displayLocationInfo(photoFile.getPath());
+                                mainPresenter.displayLocationInfo(photoFile.getPath(),textview_location);
                             }
                         }
                     });
