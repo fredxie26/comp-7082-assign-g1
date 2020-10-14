@@ -1,13 +1,22 @@
 package com.bcit.comp7082.group1;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.core.content.FileProvider;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,12 +25,13 @@ import java.util.Date;
 
 public class MainPresenter {
     private final MainActivity view;
+    String currentPhotoPath;
 
     public MainPresenter(final MainActivity view) {
         this.view = view;
     }
 
-    public void displayPhotoInfo(String path) {
+    public void displayPhotoInfo(String path, ImageView iv, TextView tv, EditText et) {
         String dateTimeTag = "", caption = "";
         Bitmap image = null;
         if (path != null || !path.equals("")) {
@@ -40,10 +50,10 @@ public class MainPresenter {
                 }
             }
         }
-        view.displayPhoto(dateTimeTag, caption, image, path);
+        displayPhoto(dateTimeTag, caption, image, path, iv,tv,et);
     }
 
-    public void displayLocationInfo(String path) {
+    public void displayLocationInfo(String path, TextView textview_location) {
         double[] laglon = null;
         String location = "";
         if(path != null) {
@@ -53,13 +63,13 @@ public class MainPresenter {
             location = "Latitude: " + Double.toString(laglon[0]) + System.lineSeparator();
             location += "Longitude: " + Double.toString(laglon[1]);
         }
-        view.displayLocation(location);
+        displayLocation(location, textview_location);
     }
 
     public ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords,
                                          double[] latRange, double[] lonRange) {
 
-        File path = view.getPhotoStoragePath();
+        File path = getPhotoStoragePath();
         ArrayList<String> photos = new ArrayList<String>();
         File[] fList = path.listFiles();
         long millisec;
@@ -83,5 +93,77 @@ public class MainPresenter {
         return photos;
     }
 
+    public void searchImage(Context context) {
+        Intent intent = new Intent(context, SearchActivity.class);
+        view.startActivityForResult(intent, view.SEARCH_ACTIVITY_REQUEST_CODE);
+    }
+    public void shareToSocial(ImageView imageView, int index,ArrayList<String> photos) {
+
+        BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+        Bitmap bitmap = drawable.getBitmap();
+
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("image/jpeg");
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+
+        String savedFile = photos.get(index);
+
+        Uri imageUri = Uri.parse(savedFile);
+        share.putExtra(Intent.EXTRA_STREAM, imageUri);
+
+        view.startActivity(Intent.createChooser(share, "Share Image"));
+
+    }
+    public File dispatchTakePictureIntent(int REQUEST_IMAGE_CAPTURE, Context context, ImageView iv, TextView tv, EditText et) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File photoFile = null;
+        if (takePictureIntent.resolveActivity(view.getPackageManager()) != null) {
+            try {
+                photoFile = createImageFile(iv,tv,et);
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(context,
+                        "com.bcit.comp7082.group1.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                view.startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                displayPhotoInfo(currentPhotoPath,iv,tv,et);
+            }
+        }
+        return photoFile;
+    }
+    private File createImageFile(ImageView iv, TextView tv, EditText et) throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String ImageFileName = "JPEG_" + timeStamp + "_" + "caption" + "_";
+        File storageDir = getPhotoStoragePath();
+        File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
+        currentPhotoPath = image.getAbsolutePath();
+        displayPhotoInfo(currentPhotoPath, iv, tv, et);
+        return image;
+    }
+    public File getPhotoStoragePath() {
+        return view.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+    }
+
+    public void displayLocation(String location, TextView textview_location) {
+//        TextView lv = (TextView) findViewById(R.id.Location);
+        textview_location.setText(location);
+    }
+    private void displayPhoto(String dateTimeTag, String caption, Bitmap image, String path, ImageView iv, TextView tv, EditText et) {
+        if(image == null) {
+            iv.setImageResource(R.mipmap.ic_launcher);
+        } else {
+            iv.setImageBitmap(image);
+        }
+        iv.setTag(path);
+        et.setText(caption);
+        tv.setText(dateTimeTag);
+    }
 }
 

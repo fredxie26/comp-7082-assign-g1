@@ -43,7 +43,7 @@ public class UITest1 {
         String afterS = after.format(f);
         File file = createImageFile("myCaption");
 
-        onView(withId(R.id.Search)).perform(click());
+        onView(withId(R.id.search_button)).perform(click());
         onView(withId(R.id.etFromDateTime)).perform(clearText());
         onView(withId(R.id.etToDateTime)).perform(clearText());
         onView(withId(R.id.etFromDateTime)).perform(typeText(nowS), closeSoftKeyboard());
