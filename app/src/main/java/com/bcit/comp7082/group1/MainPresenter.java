@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import android.location.Location;
 
 public class MainPresenter {
     private final MainActivity view;
@@ -164,6 +165,21 @@ public class MainPresenter {
         iv.setTag(path);
         et.setText(caption);
         tv.setText(dateTimeTag);
+    }
+
+    public File updatePhoto(String path, String caption) {
+        File to = null;
+        if (path != null && caption != null) {
+            String[] attr = path.split("_");
+            if (attr.length >= 3) {
+                to = new File(attr[0] + "_" + attr[1] + "_" + attr[2] + "_" + caption + "_" + attr[4]);
+            }
+        }
+        return to;
+    }
+
+    public void geoTagImage(File photoFile,  Location location) {
+        Helper.geoTag(photoFile.getPath(), location.getLatitude(), location.getLongitude());
     }
 }
 

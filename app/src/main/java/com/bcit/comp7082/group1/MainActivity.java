@@ -86,21 +86,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void updatePhoto(String path, String caption) {
-        if (path != null && caption != null) {
-            String[] attr = path.split("_");
-            if (attr.length >= 3) {
-                File to = new File(attr[0] + "_" + attr[1] + "_" + attr[2] + "_" + caption + "_" + attr[4]);
-                File from = new File(path);
-                from.renameTo(to);
-                photos.set(index, to.getPath());
-            }
-        }
-    }
-
     public void scrollPhotos(View v) {
         if (!photos.isEmpty()) {
-            updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
+            File to = mainPresenter.updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
+            if(to != null) {
+                photos.set(index, to.getPath());
+            }
 
             switch (v.getId()) {
                 case R.id.LeftButton:
@@ -175,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onSuccess(Location location) {
                             // Got last known location. In some rare situations this can be null.
                             if (location != null) {
-                                Helper.geoTag(photoFile.getPath(), location.getLatitude(), location.getLongitude());
+                                mainPresenter.geoTagImage(photoFile, location);
                                 mainPresenter.displayLocationInfo(photoFile.getPath(),textview_location);
                             }
                         }
