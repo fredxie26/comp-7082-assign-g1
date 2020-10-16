@@ -33,13 +33,13 @@
         </provider>
 
         <activity
-            android:name=".SearchActivity"
-            android:parentActivityName=".MainActivity">
+            android:name="com.bcit.com7082.group1.activity.SearchActivity"
+            android:parentActivityName="com.bcit.com7082.group1.activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value="com.bcit.com7082.group1.activity.MainActivity" />
         </activity>
-        <activity android:name=".MainActivity">
+        <activity android:name="com.bcit.com7082.group1.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -47,7 +47,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".MainActivity"
+            android:name="com.bcit.com7082.group1.activity.MainActivity"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="location" />

@@ -1,4 +1,4 @@
-package com.bcit.comp7082.group1;
+package com.bcit.com7082.group1.presenter;
 
 import androidx.exifinterface.media.ExifInterface;
 

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context="com.bcit.com7082.group1.activity.MainActivity">
 
     <Button
         android:id="@+id/search_button"

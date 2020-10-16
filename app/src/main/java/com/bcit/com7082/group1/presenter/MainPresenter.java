@@ -1,4 +1,4 @@
-package com.bcit.comp7082.group1;
+package com.bcit.com7082.group1.presenter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +24,10 @@ import java.util.Collections;
 import java.util.Date;
 import android.location.Location;
 
+import com.bcit.com7082.group1.activity.MainActivity;
+import com.bcit.comp7082.group1.R;
+import com.bcit.com7082.group1.activity.SearchActivity;
+
 public class MainPresenter {
     private final MainActivity view;
     String currentPhotoPath;
@@ -35,7 +39,7 @@ public class MainPresenter {
     public void displayPhotoInfo(String path, ImageView iv, TextView tv, EditText et) {
         String dateTimeTag = "", caption = "";
         Bitmap image = null;
-        if (path != null || !path.equals("")) {
+        if (path != null && !path.isEmpty()) {
             image = BitmapFactory.decodeFile(path);
             if (path.contains("_")) {
                 String[] attr = path.split("_");
@@ -57,10 +61,10 @@ public class MainPresenter {
     public void displayLocationInfo(String path, TextView textview_location) {
         double[] laglon = null;
         String location = "";
-        if(path != null) {
+        if(path != null && !path.isEmpty()) {
             laglon = Helper.retrieveGeoLocation(path);
         }
-        if(laglon != null) {
+        if(laglon != null && laglon.length > 1) {
             location = "Latitude: " + Double.toString(laglon[0]) + System.lineSeparator();
             location += "Longitude: " + Double.toString(laglon[1]);
         }

@@ -1,4 +1,4 @@
-package com.bcit.comp7082.group1;
+package com.bcit.com7082.group1.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -18,13 +18,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bcit.com7082.group1.presenter.MainPresenter;
+import com.bcit.comp7082.group1.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,7 +36,7 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    static final int SEARCH_ACTIVITY_REQUEST_CODE = 2;
+    public static final int SEARCH_ACTIVITY_REQUEST_CODE = 2;
 
     private ArrayList<String> photos = null;
     private int index = 0;
@@ -116,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SEARCH_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Date startTimestamp, endTimestamp;
+                Date startTimestamp = null, endTimestamp = null;
                 double[] latRange = new double[2];
                 double[] lonRange = new double[2];
                 try {
@@ -134,9 +138,10 @@ public class MainActivity extends AppCompatActivity {
                     latRange[1] = Double.parseDouble(latTo);
                     lonRange[0] = Double.parseDouble(lonFrom);
                     lonRange[1] = Double.parseDouble(lonTo);
-                } catch (Exception ex) {
+                } catch (ParseException pex) {
                     startTimestamp = null;
                     endTimestamp = null;
+                } catch (NumberFormatException nfex) {
                     latRange = null;
                     lonRange = null;
                 }
@@ -158,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("photos", "size: " + photos.size());
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                System.out.println("Permission not granted!");
+                Toast.makeText(MainActivity.this, "Permission not granted!", Toast.LENGTH_LONG).show();
             }
             fusedLocationClient.getLastLocation()
                     .addOnSuccessListener(this, new OnSuccessListener<Location>() {
