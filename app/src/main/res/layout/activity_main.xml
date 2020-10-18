@@ -4,13 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context="com.bcit.com7082.group1.activity.MainActivity">
 
     <Button
-        android:id="@+id/Search"
+        android:id="@+id/search_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="searchImage"
         android:text="@string/search"
         app:layout_constraintBottom_toTopOf="@+id/Gallery"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,7 +56,6 @@
         android:id="@+id/snap_button"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:onClick="dispatchTakePictureIntent"
         android:text="@string/snap"
         app:layout_constraintBottom_toTopOf="@+id/share_button"
         app:layout_constraintEnd_toStartOf="@+id/RightButton"
@@ -109,7 +107,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
         android:text="@string/share"
-        android:onClick="shareToSocial"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

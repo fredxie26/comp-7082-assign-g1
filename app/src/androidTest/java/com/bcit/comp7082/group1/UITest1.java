@@ -6,6 +6,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.bcit.com7082.group1.activity.MainActivity;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +45,7 @@ public class UITest1 {
         String afterS = after.format(f);
         File file = createImageFile("myCaption");
 
-        onView(withId(R.id.Search)).perform(click());
+        onView(withId(R.id.search_button)).perform(click());
         onView(withId(R.id.etFromDateTime)).perform(clearText());
         onView(withId(R.id.etToDateTime)).perform(clearText());
         onView(withId(R.id.etFromDateTime)).perform(typeText(nowS), closeSoftKeyboard());

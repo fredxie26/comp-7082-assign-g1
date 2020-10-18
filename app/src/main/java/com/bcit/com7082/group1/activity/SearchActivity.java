@@ -1,4 +1,4 @@
-package com.bcit.comp7082.group1;
+package com.bcit.com7082.group1.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+
+import com.bcit.comp7082.group1.R;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
