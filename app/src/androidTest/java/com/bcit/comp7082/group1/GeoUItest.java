@@ -34,8 +34,10 @@ public class GeoUItest{
 
         //Searches for GPS, hard coded for now no way to get Location from mainactivity, adjust to what your location is
         onView(withId(R.id.search_button)).perform(click());
-        onView(withId(R.id.etLatitude)).perform(typeText("37"), closeSoftKeyboard());
-        onView(withId(R.id.etLongitude)).perform(typeText("-122"), closeSoftKeyboard());
+        onView(withId(R.id.etLatitudeFrom)).perform(typeText("37"), closeSoftKeyboard());
+        onView(withId(R.id.etLatitudeTo)).perform(typeText("90"), closeSoftKeyboard());
+        onView(withId(R.id.etLongitudeFrom)).perform(typeText("-150"), closeSoftKeyboard());
+        onView(withId(R.id.etLongitudeTo)).perform(typeText("-100"), closeSoftKeyboard());
         onView(withId(R.id.go)).perform(click());
 
     }
