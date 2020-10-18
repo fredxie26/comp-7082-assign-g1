@@ -177,6 +177,8 @@ public class MainPresenter {
             String[] attr = path.split("_");
             if (attr.length >= 3) {
                 to = new File(attr[0] + "_" + attr[1] + "_" + attr[2] + "_" + caption + "_" + attr[4]);
+                File from = new File(path);
+                from.renameTo(to);
             }
         }
         return to;
