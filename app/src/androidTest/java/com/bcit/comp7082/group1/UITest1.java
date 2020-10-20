@@ -38,8 +38,8 @@ public class UITest1 {
 
     @Test
     public void searchActivityFunctions() throws IOException {
-        LocalDateTime now = LocalDateTime.now().minusDays(1);
-        LocalDateTime after = now.plusDays(2);
+        LocalDateTime now = LocalDateTime.now().minusMinutes(1);
+        LocalDateTime after = now.plusMinutes(2);
         DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String nowS = now.format(f);
         String afterS = after.format(f);
@@ -59,7 +59,10 @@ public class UITest1 {
 
         onView(withId(R.id.Captions)).check(matches(withText("myCaption")));
         onView(withId(R.id.RightButton)).perform(click());
+        onView(withId(R.id.Gallery)).check(matches(ImageViewSameFilenameMatcher.matchesImage(path)));
         onView(withId(R.id.LeftButton)).perform(click());
+        onView(withId(R.id.Gallery)).check(matches(ImageViewSameFilenameMatcher.matchesImage(path)));
+
     }
 
     private File createImageFile(String caption) throws IOException {
