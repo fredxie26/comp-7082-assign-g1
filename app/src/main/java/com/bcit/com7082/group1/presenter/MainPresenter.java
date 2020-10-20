@@ -27,6 +27,7 @@ import android.location.Location;
 import com.bcit.com7082.group1.activity.MainActivity;
 import com.bcit.comp7082.group1.R;
 import com.bcit.com7082.group1.activity.SearchActivity;
+import com.bcit.comp7082.group1.aspects.FindPhotosLoggingBehaviour;
 
 public class MainPresenter {
     private final MainActivity view;
@@ -71,8 +72,9 @@ public class MainPresenter {
         displayLocation(location, textview_location);
     }
 
+    @FindPhotosLoggingBehaviour
     public ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords,
-                                         double[] latRange, double[] lonRange) {
+                                        double[] latRange, double[] lonRange) {
 
         File path = getPhotoStoragePath();
         ArrayList<String> photos = new ArrayList<String>();
@@ -88,8 +90,7 @@ public class MainPresenter {
                         (endTimestamp == null || dt.getTime() <= endTimestamp.getTime()) &&
                         (keywords.equals("") || keywords.isEmpty() || f.getPath().contains(keywords)) &&
                         (latRange == null || (laglon != null && laglon[0] >= Math.min(latRange[0], latRange[1]) && laglon[0] <= Math.max(latRange[0], latRange[1]) )) &&
-                        (lonRange == null || (laglon != null && laglon[1] >= Math.min(lonRange[0], lonRange[1]) && laglon[1] <= Math.max(lonRange[0], lonRange[1]) )))
-                {
+                        (lonRange == null || (laglon != null && laglon[1] >= Math.min(lonRange[0], lonRange[1]) && laglon[1] <= Math.max(lonRange[0], lonRange[1]) ))) {
                     photos.add(f.getPath());
                 }
             }
