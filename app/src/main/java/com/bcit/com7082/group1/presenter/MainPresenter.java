@@ -22,6 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+
 import android.location.Location;
 
 import com.bcit.com7082.group1.activity.MainActivity;
@@ -89,8 +91,8 @@ public class MainPresenter {
                 if ((startTimestamp == null || dt.getTime() >= startTimestamp.getTime()) &&
                         (endTimestamp == null || dt.getTime() <= endTimestamp.getTime()) &&
                         (keywords.equals("") || keywords.isEmpty() || f.getPath().contains(keywords)) &&
-                        (latRange == null || (laglon != null && laglon[0] >= Math.min(latRange[0], latRange[1]) && laglon[0] <= Math.max(latRange[0], latRange[1]) )) &&
-                        (lonRange == null || (laglon != null && laglon[1] >= Math.min(lonRange[0], lonRange[1]) && laglon[1] <= Math.max(lonRange[0], lonRange[1]) ))) {
+                        (latRange == null || (laglon != null && laglon[0] >= Math.min(latRange[0], latRange[1]) && laglon[0] <= Math.max(latRange[0], latRange[1]))) &&
+                        (lonRange == null || (laglon != null && laglon[1] >= Math.min(lonRange[0], lonRange[1]) && laglon[1] <= Math.max(lonRange[0], lonRange[1])))) {
                     photos.add(f.getPath());
                 }
             }
@@ -157,7 +159,7 @@ public class MainPresenter {
         return view.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
     }
 
-    public void displayLocation(String location, TextView textview_location) {
+        public void displayLocation(String location, TextView textview_location) {
 //        TextView lv = (TextView) findViewById(R.id.Location);
         textview_location.setText(location);
     }
