@@ -29,17 +29,17 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 
-public class GeoUItest{
+public class GeoUItest {
 
-        public void geoTagImage(File photoFile, Location location) {
+    public void geoTagImage(File photoFile, Location location) {
         Helper.geoTag(photoFile.getPath(), location.getLatitude(), location.getLongitude());
     }
 
-    private File createImageFile(String caption, File photoFile, Location location) throws IOException {
+    private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_" + caption + "_";
+        String imageFileName = "JPEG_" + timeStamp + "_" + "TestCaption" + "_";
 
-        Helper.geoTag(photoFile.getPath(), location.getLatitude(), location.getLongitude());
+        Helper.geoTag(new File("/storage/emulated/0/Android/data/com.bcit.comp7082.group1/files/Pictures/").getPath(), 200.0, 50.0);
 
         File storageDir = new File("/storage/emulated/0/Android/data/com.bcit.comp7082.group1/files/Pictures/");
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
@@ -50,10 +50,8 @@ public class GeoUItest{
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
     @Test
-    public void GeoTest() throws IOException
-    {
-
-        File file = createImageFile("TestCaption", "/storage/emulated/0/Android/data/com.bcit.comp7082.group1/files/Pictures/", 200.0, 50.0);
+    public void GeoTest() throws IOException {
+        File file = createImageFile();
 
         onView(withId(R.id.search_button)).perform(click());
         onView(withId(R.id.etLatitudeFrom)).perform(typeText("100.0"), closeSoftKeyboard());
@@ -63,6 +61,5 @@ public class GeoUItest{
         onView(withId(R.id.go)).perform(click());
         onView(withId(R.id.RightButton)).perform(click());
         onView(withId(R.id.LeftButton)).perform(click());
-
     }
 }
