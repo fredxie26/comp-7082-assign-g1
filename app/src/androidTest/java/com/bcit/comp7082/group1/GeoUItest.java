@@ -31,19 +31,12 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 public class GeoUItest {
 
-    public void geoTagImage(File photoFile, Location location) {
-        Helper.geoTag(photoFile.getPath(), location.getLatitude(), location.getLongitude());
-    }
-
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_" + "TestCaption" + "_";
-
         Helper.geoTag(new File("/storage/emulated/0/Android/data/com.bcit.comp7082.group1/files/Pictures/").getPath(), 200.0, 50.0);
-
         File storageDir = new File("/storage/emulated/0/Android/data/com.bcit.comp7082.group1/files/Pictures/");
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-        return image;
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
     @Rule
