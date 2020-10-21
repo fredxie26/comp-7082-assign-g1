@@ -35,16 +35,19 @@ public class GeoUItest {
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_" + "TestCaption" + "_";
-        Helper.geoTag(new File("/storage/emulated/0/Android/data/com.bcit.comp7082.group1/files/Pictures/").getPath(), 200.0, 50.0);
         File storageDir = new File("/storage/emulated/0/Android/data/com.bcit.comp7082.group1/files/Pictures/");
-        return File.createTempFile(imageFileName, ".jpg", storageDir);
+        File tempImage = File.createTempFile(imageFileName, ".jpg", storageDir);
+        Helper.geoTag(tempImage.getPath(), 200.0, 50.0);
+        return tempImage;
     }
+
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
     @Test
     public void GeoTest() throws IOException {
+
         File file = createImageFile();
 
         onView(withId(R.id.search_button)).perform(click());
@@ -52,8 +55,14 @@ public class GeoUItest {
         onView(withId(R.id.etLatitudeTo)).perform(typeText("300.0"), closeSoftKeyboard());
         onView(withId(R.id.etLongitudeFrom)).perform(typeText("50.0"), closeSoftKeyboard());
         onView(withId(R.id.etLongitudeTo)).perform(typeText("150.0"), closeSoftKeyboard());
+
+
+
         onView(withId(R.id.go)).perform(click());
-        onView(withId(R.id.Location)).check(matches(withText("200.0, 50.0")));
+        String path = file.getAbsolutePath();
+
+        onView(withId(R.id.Location)).check(matches(withText("Latitude:  50.0" + "\n" + "Longitude:  200.0")));
+
         onView(withId(R.id.RightButton)).perform(click());
         onView(withId(R.id.LeftButton)).perform(click());
     }
