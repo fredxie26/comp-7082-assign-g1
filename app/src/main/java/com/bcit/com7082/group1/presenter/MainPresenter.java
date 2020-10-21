@@ -87,7 +87,8 @@ public class MainPresenter {
         if (fList != null) {
             fListAL.stream()
                     .filter(file -> isPhotoMatch(file, startTimestamp, endTimestamp, keywords, latRange, lonRange))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList())
+                    .forEach(file -> photos.add(file.getPath()));
         }
         photos.sort(Collections.<String>reverseOrder());
         return photos;
