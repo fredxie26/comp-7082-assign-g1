@@ -4,14 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -22,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bcit.com7082.group1.presenter.Helper;
 import com.bcit.com7082.group1.presenter.MainPresenter;
 import com.bcit.comp7082.group1.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -34,11 +31,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Date;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,13 +41,12 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> photos = null;
     private int index = 0;
     File photoFile = null;
-    TextView textview_location, textview_time;
+    TextView textview_location,textview_time;
     EditText edittext_captions;
     ImageView imageView;
     private FusedLocationProviderClient fusedLocationClient;
     private MainPresenter mainPresenter;
     public static Context context;
-    private String photoURI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,11 +62,11 @@ public class MainActivity extends AppCompatActivity {
         photos = mainPresenter.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
 
         if (photos.size() == 0) {
-            mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions);
-            mainPresenter.displayLocationInfo(null, textview_location);
+            mainPresenter.displayPhotoInfo(null,imageView,textview_time,edittext_captions);
+            mainPresenter.displayLocationInfo(null,textview_location);
         } else {
-            mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
-            mainPresenter.displayLocationInfo(photos.get(index), textview_location);
+            mainPresenter.displayPhotoInfo(photos.get(index),imageView,textview_time,edittext_captions);
+            mainPresenter.displayLocationInfo(photos.get(index),textview_location);
         }
 
         Button snap_button = (Button) findViewById(R.id.snap_button);
@@ -83,12 +75,12 @@ public class MainActivity extends AppCompatActivity {
 
         snap_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                photoFile = mainPresenter.dispatchTakePictureIntent(REQUEST_IMAGE_CAPTURE, context, imageView, textview_time, edittext_captions);
+                photoFile = mainPresenter.dispatchTakePictureIntent(REQUEST_IMAGE_CAPTURE, context,imageView,textview_time,edittext_captions);
             }
         });
         share_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mainPresenter.shareToSocial(imageView, index, photos);
+                mainPresenter.shareToSocial(imageView, index,photos);
             }
         });
         search_button.setOnClickListener(new View.OnClickListener() {
@@ -101,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
     public void scrollPhotos(View v) {
         if (!photos.isEmpty()) {
             File to = mainPresenter.updatePhoto(photos.get(index), ((EditText) findViewById(R.id.Captions)).getText().toString());
-            if (to != null) {
+            if(to != null) {
                 photos.set(index, to.getPath());
             }
 
@@ -119,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                 default:
                     break;
             }
-            mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
+            mainPresenter.displayPhotoInfo(photos.get(index),imageView,textview_time,edittext_captions);
         }
     }
 
@@ -159,12 +151,13 @@ public class MainActivity extends AppCompatActivity {
                 photos = mainPresenter.findPhotos(startTimestamp, endTimestamp, keywords, latRange, lonRange);
 
                 if (photos.size() == 0) {
-                    mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions);
+                    mainPresenter.displayPhotoInfo(null,imageView,textview_time,edittext_captions);
                 } else {
-                    mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
+                    mainPresenter.displayPhotoInfo(photos.get(index),imageView,textview_time,edittext_captions);
                 }
             }
-        } else if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
+        }
+        else if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             Log.d("Onactivity Result", requestCode + "second if statement" + resultCode);
             photos = mainPresenter.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
             Log.d("photos", "size: " + photos.size());
@@ -179,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                             // Got last known location. In some rare situations this can be null.
                             if (location != null) {
                                 mainPresenter.geoTagImage(photoFile, location);
-                                mainPresenter.displayLocationInfo(photoFile.getPath(), textview_location);
+                                mainPresenter.displayLocationInfo(photoFile.getPath(),textview_location);
                             }
                         }
                     });
@@ -195,5 +188,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 
 }

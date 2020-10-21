@@ -10,10 +10,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -27,16 +24,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 @LargeTest
 
 public class GeoUItest{
-
-    //Help.geoTag(Fakefile, 50, -100)
-
-    private File createImageFile(String caption) throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_" + caption + "_";
-        File storageDir = new File("/storage/emulated/0/Android/data/com.bcit.comp7082.group1/files/Pictures/");
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-        return image;
-    }
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
