@@ -22,6 +22,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withResourceName;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -52,6 +53,7 @@ public class GeoUItest {
         onView(withId(R.id.etLongitudeFrom)).perform(typeText("50.0"), closeSoftKeyboard());
         onView(withId(R.id.etLongitudeTo)).perform(typeText("150.0"), closeSoftKeyboard());
         onView(withId(R.id.go)).perform(click());
+        onView(withId(R.id.Location)).check(matches(withText("200.0, 50.0")));
         onView(withId(R.id.RightButton)).perform(click());
         onView(withId(R.id.LeftButton)).perform(click());
     }
