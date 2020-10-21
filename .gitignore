@@ -2,6 +2,12 @@
 .gradle
 /local.properties
 /.idea/caches
+/.idea/.name
+/.idea/compiler.xml
+/.idea/gradle.xml
+/.idea/jarRepositories.xml
+/.idea/misc.xml
+/.idea/vcs.xml
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
@@ -12,3 +18,4 @@
 /captures
 .externalNativeBuild
 .cxx
+/app/

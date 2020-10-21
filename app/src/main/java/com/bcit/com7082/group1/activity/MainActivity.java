@@ -56,17 +56,19 @@ public class MainActivity extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         imageView = findViewById(R.id.Gallery);
         context = getApplicationContext();
-        textview_location = (TextView) findViewById(R.id.Location);
-        textview_time = (TextView) findViewById(R.id.Timestamp);
-        edittext_captions = (EditText) findViewById(R.id.Captions);
+        textview_location = findViewById(R.id.Location);
+        textview_time = findViewById(R.id.Timestamp);
+        edittext_captions = findViewById(R.id.Captions);
         photos = mainPresenter.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
 
         if (photos.size() == 0) {
-            mainPresenter.displayPhotoInfo(null,imageView,textview_time,edittext_captions);
-            mainPresenter.displayLocationInfo(null,textview_location);
+  
+       mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions);
+            mainPresenter.displayLocationInfo(null, textview_location);
+
         } else {
-            mainPresenter.displayPhotoInfo(photos.get(index),imageView,textview_time,edittext_captions);
-            mainPresenter.displayLocationInfo(photos.get(index),textview_location);
+            mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
+            mainPresenter.displayLocationInfo(photos.get(index), textview_location);
         }
 
         Button snap_button = (Button) findViewById(R.id.snap_button);
@@ -111,7 +113,9 @@ public class MainActivity extends AppCompatActivity {
                 default:
                     break;
             }
-            mainPresenter.displayPhotoInfo(photos.get(index),imageView,textview_time,edittext_captions);
+  
+  mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
+            mainPresenter.displayLocationInfo(photos.get(index), textview_location);
         }
     }
 
@@ -151,9 +155,13 @@ public class MainActivity extends AppCompatActivity {
                 photos = mainPresenter.findPhotos(startTimestamp, endTimestamp, keywords, latRange, lonRange);
 
                 if (photos.size() == 0) {
-                    mainPresenter.displayPhotoInfo(null,imageView,textview_time,edittext_captions);
+
+  
+  mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions);
+                    mainPresenter.displayLocationInfo(null, textview_location);
                 } else {
-                    mainPresenter.displayPhotoInfo(photos.get(index),imageView,textview_time,edittext_captions);
+                    mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
+                    mainPresenter.displayLocationInfo(photos.get(index), textview_location);
                 }
             }
         }
