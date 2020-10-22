@@ -20,12 +20,9 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import android.location.Location;
 
@@ -61,16 +58,16 @@ public class MainPresenter {
                 }
             }
         }
-        displayPhoto(dateTimeTag, caption, image, path, iv, tv, et);
+        displayPhoto(dateTimeTag, caption, image, path, iv,tv,et);
     }
 
     public void displayLocationInfo(String path, TextView textview_location) {
         double[] laglon = null;
         String location = "";
-        if (path != null && !path.isEmpty()) {
+        if(path != null && !path.isEmpty()) {
             laglon = Helper.retrieveGeoLocation(path);
         }
-        if (laglon != null && laglon.length > 1) {
+        if(laglon != null && laglon.length > 1) {
             location = "Latitude: " + Double.toString(laglon[0]) + System.lineSeparator();
             location += "Longitude: " + Double.toString(laglon[1]);
         }
@@ -80,41 +77,27 @@ public class MainPresenter {
     @FindPhotosLoggingBehaviour
     public ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords,
                                         double[] latRange, double[] lonRange) {
+
         File path = getPhotoStoragePath();
         ArrayList<String> photos = new ArrayList<String>();
         File[] fList = path.listFiles();
-        List<File> fListAL = Arrays.asList(fList);
+        long millisec;
+        Date dt;
         if (fList != null) {
             fListAL.stream()
-                    .filter(file -> isPhotoMatch(file, startTimestamp, endTimestamp, keywords, latRange, lonRange))
-                    .collect(Collectors.toList())
-                    .forEach(file -> photos.add(file.getPath()));
+                .filter(file -> isPhotoMatch(file, startTimestamp, endTimestamp, keywords, latRange, lonRange))
+                .collect(Collectors.toList())
+                .forEach(file -> photos.add(file.getPath()));
         }
         photos.sort(Collections.<String>reverseOrder());
         return photos;
-    }
-
-    public boolean isPhotoMatch(File f, Date startTimestamp, Date endTimestamp, String keywords,
-                                double[] latRange, double[] lonRange) {
-        long millisec;
-        Date dt;
-        millisec = f.lastModified();
-        dt = new Date(millisec);
-        double[] laglon = Helper.retrieveGeoLocation(f.getPath());
-
-        return (startTimestamp == null || dt.getTime() >= startTimestamp.getTime()) &&
-                (endTimestamp == null || dt.getTime() <= endTimestamp.getTime()) &&
-                (keywords.equals("") || keywords.isEmpty() || f.getPath().contains(keywords)) &&
-                (latRange == null || (laglon != null && laglon[0] >= Math.min(latRange[0], latRange[1]) && laglon[0] <= Math.max(latRange[0], latRange[1]))) &&
-                (lonRange == null || (laglon != null && laglon[1] >= Math.min(lonRange[0], lonRange[1]) && laglon[1] <= Math.max(lonRange[0], lonRange[1])));
     }
 
     public void searchImage(Context context) {
         Intent intent = new Intent(context, SearchActivity.class);
         view.startActivityForResult(intent, view.SEARCH_ACTIVITY_REQUEST_CODE);
     }
-
-    public void shareToSocial(ImageView imageView, int index, ArrayList<String> photos) {
+    public void shareToSocial(ImageView imageView, int index,ArrayList<String> photos) {
 
         BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
         Bitmap bitmap = drawable.getBitmap();
@@ -134,13 +117,12 @@ public class MainPresenter {
         view.startActivity(Intent.createChooser(share, "Share Image"));
 
     }
-
     public File dispatchTakePictureIntent(int REQUEST_IMAGE_CAPTURE, Context context, ImageView iv, TextView tv, EditText et) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File photoFile = null;
         if (takePictureIntent.resolveActivity(view.getPackageManager()) != null) {
             try {
-                photoFile = createImageFile(iv, tv, et);
+                photoFile = createImageFile(iv,tv,et);
             } catch (IOException ex) {
                 // Error occurred while creating the File
             }
@@ -151,12 +133,11 @@ public class MainPresenter {
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 view.startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                displayPhotoInfo(currentPhotoPath, iv, tv, et);
+                displayPhotoInfo(currentPhotoPath,iv,tv,et);
             }
         }
         return photoFile;
     }
-
     private File createImageFile(ImageView iv, TextView tv, EditText et) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String ImageFileName = "JPEG_" + timeStamp + "_" + "caption" + "_";
@@ -166,20 +147,16 @@ public class MainPresenter {
         displayPhotoInfo(currentPhotoPath, iv, tv, et);
         return image;
     }
-
     public File getPhotoStoragePath() {
         return view.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
     }
 
-
-
     public void displayLocation(String location, TextView textview_location) {
-        //        TextView lv = (TextView) findViewById(R.id.Location);
+//        TextView lv = (TextView) findViewById(R.id.Location);
         textview_location.setText(location);
     }
-
     private void displayPhoto(String dateTimeTag, String caption, Bitmap image, String path, ImageView iv, TextView tv, EditText et) {
-        if (image == null) {
+        if(image == null) {
             iv.setImageResource(R.mipmap.ic_launcher);
         } else {
             iv.setImageBitmap(image);
@@ -202,7 +179,7 @@ public class MainPresenter {
         return to;
     }
 
-    public void geoTagImage(File photoFile, Location location) {
+    public void geoTagImage(File photoFile,  Location location) {
         Helper.geoTag(photoFile.getPath(), location.getLatitude(), location.getLongitude());
     }
 }
