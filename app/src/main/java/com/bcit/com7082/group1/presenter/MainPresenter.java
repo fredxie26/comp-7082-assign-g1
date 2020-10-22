@@ -22,8 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.stream.Collectors;
-
 import android.location.Location;
 
 import com.bcit.com7082.group1.activity.MainActivity;
@@ -84,10 +82,11 @@ public class MainPresenter {
         long millisec;
         Date dt;
         if (fList != null) {
-            fListAL.stream()
-                .filter(file -> isPhotoMatch(file, startTimestamp, endTimestamp, keywords, latRange, lonRange))
-                .collect(Collectors.toList())
-                .forEach(file -> photos.add(file.getPath()));
+  
+   fListAL.stream()
+                    .filter(file -> isPhotoMatch(file, startTimestamp, endTimestamp, keywords, latRange, lonRange))
+                    .collect(Collectors.toList())
+                    .forEach(file -> photos.add(file.getPath()));
         }
         photos.sort(Collections.<String>reverseOrder());
         return photos;
