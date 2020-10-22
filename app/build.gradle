@@ -42,6 +42,7 @@ dependencies {
     androidTestImplementation 'androidx.test:rules:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
     implementation 'org.aspectj:aspectjrt:1.9.6'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.9'
 }
 if (getGradle().getStartParameter().getTaskRequests().toString().contains("AndroidTest") || getGradle().getStartParameter().getTaskRequests().toString().contains("UnitTest")) {
     apply plugin: 'com.archinamon.aspectj-junit'
