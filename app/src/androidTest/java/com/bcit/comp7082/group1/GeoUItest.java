@@ -53,6 +53,7 @@ public class GeoUItest {
         onView(withId(R.id.etLatitudeTo)).perform(typeText("70.0"), closeSoftKeyboard());
         onView(withId(R.id.etLongitudeFrom)).perform(typeText("100.0"), closeSoftKeyboard());
         onView(withId(R.id.etLongitudeTo)).perform(typeText("300.0"), closeSoftKeyboard());
+        String path = file.getAbsolutePath();
         onView(withId(R.id.go)).perform(click());
         onView(withId(R.id.Location)).check(matches(withText("Longitude: 200.0" + "\n" + "Latitude: 50.0")));
         onView(withId(R.id.RightButton)).perform(click());
