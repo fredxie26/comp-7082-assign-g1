@@ -13,7 +13,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -21,13 +24,11 @@ import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withResourceName;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-
-  public class GeoUItest {
+public class GeoUItest {
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -46,7 +47,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
         File file = createImageFile();
 
-        onView(withId(R.id.search_button)).perform(click());  
+        onView(withId(R.id.search_button)).perform(click());
         onView(withId(R.id.etLatitudeFrom)).perform(typeText("30.0"), closeSoftKeyboard());
         onView(withId(R.id.etLatitudeTo)).perform(typeText("70.0"), closeSoftKeyboard());
         onView(withId(R.id.etLongitudeFrom)).perform(typeText("100.0"), closeSoftKeyboard());
@@ -54,7 +55,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
         String path = file.getAbsolutePath();
         onView(withId(R.id.go)).perform(click());
         onView(withId(R.id.Location)).check(matches(withText("Longitude: 200.0" + "\n" + "Latitude: 50.0")));
-  
+
         onView(withId(R.id.RightButton)).perform(click());
         onView(withId(R.id.LeftButton)).perform(click());
     }
