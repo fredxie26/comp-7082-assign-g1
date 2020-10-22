@@ -46,19 +46,15 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
         File file = createImageFile();
 
-        onView(withId(R.id.search_button)).perform(click());
-        onView(withId(R.id.etLatitudeFrom)).perform(typeText("100.0"), closeSoftKeyboard());
-        onView(withId(R.id.etLatitudeTo)).perform(typeText("300.0"), closeSoftKeyboard());
-        onView(withId(R.id.etLongitudeFrom)).perform(typeText("50.0"), closeSoftKeyboard());
-        onView(withId(R.id.etLongitudeTo)).perform(typeText("150.0"), closeSoftKeyboard());
-
-
-
-        onView(withId(R.id.go)).perform(click());
+        onView(withId(R.id.search_button)).perform(click());  
+        onView(withId(R.id.etLatitudeFrom)).perform(typeText("30.0"), closeSoftKeyboard());
+        onView(withId(R.id.etLatitudeTo)).perform(typeText("70.0"), closeSoftKeyboard());
+        onView(withId(R.id.etLongitudeFrom)).perform(typeText("100.0"), closeSoftKeyboard());
+        onView(withId(R.id.etLongitudeTo)).perform(typeText("300.0"), closeSoftKeyboard());
         String path = file.getAbsolutePath();
-
-        onView(withId(R.id.Location)).check(matches(withText("Latitude:  50.0" + "\n" + "Longitude:  200.0")));
-
+        onView(withId(R.id.go)).perform(click());
+        onView(withId(R.id.Location)).check(matches(withText("Longitude: 200.0" + "\n" + "Latitude: 50.0")));
+  
         onView(withId(R.id.RightButton)).perform(click());
         onView(withId(R.id.LeftButton)).perform(click());
     }
