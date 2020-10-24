@@ -7,7 +7,6 @@
     tools:context="com.bcit.com7082.group1.activity.SearchActivity">
 
     <TextView
-        android:id="@+id/tvKeywords2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/tvFromDateTime"
@@ -57,7 +56,6 @@
         android:textSize="24sp" />
 
     <TextView
-        android:id="@+id/tvKeywords"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/tvFromDateTime"
@@ -97,7 +95,6 @@
         android:layout_marginEnd="128dp" />
 
     <TextView
-        android:id="@+id/txLag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -107,7 +104,6 @@
         android:text="Latitude" />
 
     <TextView
-        android:id="@+id/tvLon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
