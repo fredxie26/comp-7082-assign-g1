@@ -61,19 +61,12 @@ public class MainActivity extends AppCompatActivity {
         edittext_captions = findViewById(R.id.Captions);
         photos = mainPresenter.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
 
-        if (photos.size() == 0) {
-  
-       mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions);
-            mainPresenter.displayLocationInfo(null, textview_location);
-
-        } else {
-            mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
-            mainPresenter.displayLocationInfo(photos.get(index), textview_location);
-        }
+        display();
 
         Button snap_button = (Button) findViewById(R.id.snap_button);
         Button share_button = (Button) findViewById(R.id.share_button);
         Button search_button = (Button) findViewById(R.id.search_button);
+        Button remove_button = (Button) findViewById(R.id.remove_pic);
 
         snap_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -90,6 +83,26 @@ public class MainActivity extends AppCompatActivity {
                 mainPresenter.searchImage(context);
             }
         });
+        remove_button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mainPresenter.removeImage(photos.get(index));
+                photos.remove(index);
+                if(photos.size() == index) {
+                    index = 0;
+                }
+                display();
+            }
+        });
+    }
+
+    public void display() {
+        if (photos.size() == 0) {
+            mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions);
+            mainPresenter.displayLocationInfo(null, textview_location);
+        } else {
+            mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
+            mainPresenter.displayLocationInfo(photos.get(index), textview_location);
+        }
     }
 
     public void scrollPhotos(View v) {

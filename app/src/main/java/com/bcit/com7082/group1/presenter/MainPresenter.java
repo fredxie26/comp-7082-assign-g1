@@ -197,5 +197,12 @@ public class MainPresenter {
     public void geoTagImage(File photoFile,  Location location) {
         Helper.geoTag(photoFile.getPath(), location.getLatitude(), location.getLongitude());
     }
+
+    public void removeImage(String path) {
+        if(path != null && !path.isEmpty()) {
+            File file = new File(path);
+            file.delete();
+        }
+    }
 }
 
