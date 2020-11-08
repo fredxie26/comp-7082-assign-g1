@@ -26,6 +26,9 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -44,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     TextView textview_location,textview_time;
     EditText edittext_captions;
     ImageView imageView;
+    private ScaleGestureDetector scaleGestureDetector;
+    private float mScaleFactor = 1.0f;
     private FusedLocationProviderClient fusedLocationClient;
     private MainPresenter mainPresenter;
     public static Context context;
@@ -55,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         mainPresenter = new MainPresenter(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         imageView = findViewById(R.id.Gallery);
+        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
         context = getApplicationContext();
         textview_location = findViewById(R.id.Location);
         textview_time = findViewById(R.id.Timestamp);
@@ -210,5 +216,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent) {
+        scaleGestureDetector.onTouchEvent(motionEvent);
+        return true;
+    }
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
+            mScaleFactor *= scaleGestureDetector.getScaleFactor();
+            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 10.0f));
+            imageView.setScaleX(mScaleFactor);
+            imageView.setScaleY(mScaleFactor);
+            return true;
+        }
+    }
 }
