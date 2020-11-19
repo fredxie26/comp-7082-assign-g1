@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +26,9 @@ import com.bcit.comp7082.group1.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
     TextView textview_location,textview_time;
     EditText edittext_captions;
     ImageView imageView;
+    ImageButton favoriteButton;
+    private ScaleGestureDetector scaleGestureDetector;
+    private float mScaleFactor = 1.0f;
     private FusedLocationProviderClient fusedLocationClient;
     private MainPresenter mainPresenter;
     public Context context;
@@ -55,29 +62,24 @@ public class MainActivity extends AppCompatActivity {
         mainPresenter = new MainPresenter(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         imageView = findViewById(R.id.Gallery);
+        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
         context = getApplicationContext();
         textview_location = findViewById(R.id.Location);
         textview_time = findViewById(R.id.Timestamp);
         edittext_captions = findViewById(R.id.Captions);
         photos = mainPresenter.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
+        favoriteButton = (ImageButton) findViewById(R.id.favorite);
 
-        if (photos.size() == 0) {
-  
-       mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions);
-            mainPresenter.displayLocationInfo(null, textview_location);
-
-        } else {
-            mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
-            mainPresenter.displayLocationInfo(photos.get(index), textview_location);
-        }
+        display();
 
         Button snap_button = (Button) findViewById(R.id.snap_button);
         Button share_button = (Button) findViewById(R.id.share_button);
         Button search_button = (Button) findViewById(R.id.search_button);
+        Button remove_button = (Button) findViewById(R.id.remove_pic);
 
         snap_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                photoFile = mainPresenter.dispatchTakePictureIntent(REQUEST_IMAGE_CAPTURE, context,imageView,textview_time,edittext_captions);
+                photoFile = mainPresenter.dispatchTakePictureIntent(REQUEST_IMAGE_CAPTURE, context,imageView,textview_time,edittext_captions,favoriteButton);
             }
         });
         share_button.setOnClickListener(new View.OnClickListener() {
@@ -90,6 +92,39 @@ public class MainActivity extends AppCompatActivity {
                 mainPresenter.searchImage(context);
             }
         });
+        remove_button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mainPresenter.removeImage(photos.get(index));
+                photos.remove(index);
+                if(photos.size() == index) {
+                    index = 0;
+                }
+                display();
+            }
+        });
+
+        favoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isFavourite = mainPresenter.readState(photos.get(index));
+                if (isFavourite) {
+                    mainPresenter.saveState(false, photos.get(index));
+                } else {
+                    mainPresenter.saveState(true, photos.get(index));
+                }
+                display();
+            }
+        });
+    }
+
+    public void display() {
+        if (photos.size() == 0) {
+            mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions, favoriteButton);
+            mainPresenter.displayLocationInfo(null, textview_location);
+        } else {
+            mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions, favoriteButton);
+            mainPresenter.displayLocationInfo(photos.get(index), textview_location);
+        }
     }
 
     public void scrollPhotos(View v) {
@@ -114,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
   
-  mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
+  mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions, favoriteButton);
             mainPresenter.displayLocationInfo(photos.get(index), textview_location);
         }
     }
@@ -157,10 +192,10 @@ public class MainActivity extends AppCompatActivity {
                 if (photos.size() == 0) {
 
   
-  mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions);
+  mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions, favoriteButton);
                     mainPresenter.displayLocationInfo(null, textview_location);
                 } else {
-                    mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
+                    mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions, favoriteButton);
                     mainPresenter.displayLocationInfo(photos.get(index), textview_location);
                 }
             }
@@ -197,5 +232,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent) {
+        scaleGestureDetector.onTouchEvent(motionEvent);
+        return true;
+    }
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
+            mScaleFactor *= scaleGestureDetector.getScaleFactor();
+            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 10.0f));
+            imageView.setScaleX(mScaleFactor);
+            imageView.setScaleY(mScaleFactor);
+            return true;
+        }
+    }
 }

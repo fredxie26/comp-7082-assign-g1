@@ -22,10 +22,11 @@
         android:id="@+id/Gallery"
         android:layout_width="287dp"
         android:layout_height="273dp"
-        android:layout_marginTop="24dp"
-        android:tag="pic"
+        android:layout_marginTop="20dp"
         android:contentDescription="@string/imageView"
+        android:tag="pic"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.169"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Captions"
         app:srcCompat="@drawable/ic_launcher_foreground" />
@@ -110,6 +111,25 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/remove_pic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="Delete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/Gallery"
+        app:layout_constraintTop_toTopOf="@+id/Gallery" />
+
+    <ImageButton
+        android:id="@+id/favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/btn_star_big_off"
+        tools:layout_editor_absoluteX="314dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
