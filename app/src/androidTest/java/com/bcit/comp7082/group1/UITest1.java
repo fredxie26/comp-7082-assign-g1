@@ -45,23 +45,23 @@ public class UITest1 {
         String afterS = after.format(f);
         File file = createImageFile("myCaption");
 
-        onView(withId(R.id.search_button)).perform(click());
-        onView(withId(R.id.etFromDateTime)).perform(clearText());
-        onView(withId(R.id.etToDateTime)).perform(clearText());
-        onView(withId(R.id.etFromDateTime)).perform(typeText(nowS), closeSoftKeyboard());
-        onView(withId(R.id.etToDateTime)).perform(typeText(afterS), closeSoftKeyboard());
-
-        onView(withId(R.id.etKeywords)).perform(typeText("myCaption"), closeSoftKeyboard());
-        onView(withId(R.id.go)).perform(click());
-        String path = file.getAbsolutePath();
-        onView(withId(R.id.Gallery)).check(matches(ImageViewSameFilenameMatcher.matchesImage(path)));
-
+//        onView(withId(R.id.search_button)).perform(click());
+//        onView(withId(R.id.etFromDateTime)).perform(clearText());
+//        onView(withId(R.id.etToDateTime)).perform(clearText());
+//        onView(withId(R.id.etFromDateTime)).perform(typeText(nowS), closeSoftKeyboard());
+//        onView(withId(R.id.etToDateTime)).perform(typeText(afterS), closeSoftKeyboard());
+//
+//        onView(withId(R.id.etKeywords)).perform(typeText("myCaption"), closeSoftKeyboard());
+//        onView(withId(R.id.go)).perform(click());
+//        String path = file.getAbsolutePath();
+//        onView(withId(R.id.Gallery)).check(matches(ImageViewSameFilenameMatcher.matchesImage(path)));
+//
 //        onView(withId(R.id.favorite)).perform(click());
-        onView(withId(R.id.Captions)).check(matches(withText("myCaption")));
-        onView(withId(R.id.RightButton)).perform(click());
-        onView(withId(R.id.Gallery)).check(matches(ImageViewSameFilenameMatcher.matchesImage(path)));
-        onView(withId(R.id.LeftButton)).perform(click());
-        onView(withId(R.id.Gallery)).check(matches(ImageViewSameFilenameMatcher.matchesImage(path)));
+//        onView(withId(R.id.Captions)).check(matches(withText("myCaption")));
+//        onView(withId(R.id.RightButton)).perform(click());
+//        onView(withId(R.id.Gallery)).check(matches(ImageViewSameFilenameMatcher.matchesImage(path)));
+//        onView(withId(R.id.LeftButton)).perform(click());
+//        onView(withId(R.id.Gallery)).check(matches(ImageViewSameFilenameMatcher.matchesImage(path)));
 //        onView(withId(R.id.remove_pic)).perform(click());
 
 
