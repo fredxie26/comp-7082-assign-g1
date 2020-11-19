@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     TextView textview_location,textview_time;
     EditText edittext_captions;
     ImageView imageView;
+    ImageButton favoriteButton;
     private ScaleGestureDetector scaleGestureDetector;
     private float mScaleFactor = 1.0f;
     private FusedLocationProviderClient fusedLocationClient;
@@ -66,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         textview_time = findViewById(R.id.Timestamp);
         edittext_captions = findViewById(R.id.Captions);
         photos = mainPresenter.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", null, null);
+        favoriteButton = (ImageButton) findViewById(R.id.favorite);
 
         display();
 
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         snap_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                photoFile = mainPresenter.dispatchTakePictureIntent(REQUEST_IMAGE_CAPTURE, context,imageView,textview_time,edittext_captions);
+                photoFile = mainPresenter.dispatchTakePictureIntent(REQUEST_IMAGE_CAPTURE, context,imageView,textview_time,edittext_captions,favoriteButton);
             }
         });
         share_button.setOnClickListener(new View.OnClickListener() {
@@ -99,14 +102,27 @@ public class MainActivity extends AppCompatActivity {
                 display();
             }
         });
+
+        favoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isFavourite = mainPresenter.readState(photos.get(index));
+                if (isFavourite) {
+                    mainPresenter.saveState(false, photos.get(index));
+                } else {
+                    mainPresenter.saveState(true, photos.get(index));
+                }
+                display();
+            }
+        });
     }
 
     public void display() {
         if (photos.size() == 0) {
-            mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions);
+            mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions, favoriteButton);
             mainPresenter.displayLocationInfo(null, textview_location);
         } else {
-            mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
+            mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions, favoriteButton);
             mainPresenter.displayLocationInfo(photos.get(index), textview_location);
         }
     }
@@ -133,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
   
-  mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
+  mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions, favoriteButton);
             mainPresenter.displayLocationInfo(photos.get(index), textview_location);
         }
     }
@@ -176,10 +192,10 @@ public class MainActivity extends AppCompatActivity {
                 if (photos.size() == 0) {
 
   
-  mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions);
+  mainPresenter.displayPhotoInfo(null, imageView, textview_time, edittext_captions, favoriteButton);
                     mainPresenter.displayLocationInfo(null, textview_location);
                 } else {
-                    mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions);
+                    mainPresenter.displayPhotoInfo(photos.get(index), imageView, textview_time, edittext_captions, favoriteButton);
                     mainPresenter.displayLocationInfo(photos.get(index), textview_location);
                 }
             }

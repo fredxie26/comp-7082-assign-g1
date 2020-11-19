@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -41,7 +42,7 @@ public class MainPresenter {
         this.view = view;
     }
 
-    public void displayPhotoInfo(String path, ImageView iv, TextView tv, EditText et) {
+    public void displayPhotoInfo(String path, ImageView iv, TextView tv, EditText et, ImageButton fb) {
         String dateTimeTag = "", caption = "";
         Bitmap image = null;
         if (path != null && !path.isEmpty()) {
@@ -60,7 +61,7 @@ public class MainPresenter {
                 }
             }
         }
-        displayPhoto(dateTimeTag, caption, image, path, iv,tv,et);
+        displayPhoto(dateTimeTag, caption, image, path, iv,tv,et, fb);
     }
 
     public void displayLocationInfo(String path, TextView textview_location) {
@@ -132,12 +133,12 @@ public class MainPresenter {
         view.startActivity(Intent.createChooser(share, "Share Image"));
 
     }
-    public File dispatchTakePictureIntent(int REQUEST_IMAGE_CAPTURE, Context context, ImageView iv, TextView tv, EditText et) {
+    public File dispatchTakePictureIntent(int REQUEST_IMAGE_CAPTURE, Context context, ImageView iv, TextView tv, EditText et, ImageButton fb) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File photoFile = null;
         if (takePictureIntent.resolveActivity(view.getPackageManager()) != null) {
             try {
-                photoFile = createImageFile(iv,tv,et);
+                photoFile = createImageFile(iv,tv,et,fb);
             } catch (IOException ex) {
                 // Error occurred while creating the File
             }
@@ -148,18 +149,18 @@ public class MainPresenter {
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 view.startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                displayPhotoInfo(currentPhotoPath,iv,tv,et);
+                displayPhotoInfo(currentPhotoPath,iv,tv,et,fb);
             }
         }
         return photoFile;
     }
-    private File createImageFile(ImageView iv, TextView tv, EditText et) throws IOException {
+    private File createImageFile(ImageView iv, TextView tv, EditText et, ImageButton fb) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String ImageFileName = "JPEG_" + timeStamp + "_" + "caption" + "_";
         File storageDir = getPhotoStoragePath();
         File image = File.createTempFile(ImageFileName, ".jpg", storageDir);
         currentPhotoPath = image.getAbsolutePath();
-        displayPhotoInfo(currentPhotoPath, iv, tv, et);
+        displayPhotoInfo(currentPhotoPath, iv, tv, et, fb);
         return image;
     }
     public File getPhotoStoragePath() {
@@ -170,7 +171,7 @@ public class MainPresenter {
 //        TextView lv = (TextView) findViewById(R.id.Location);
         textview_location.setText(location);
     }
-    private void displayPhoto(String dateTimeTag, String caption, Bitmap image, String path, ImageView iv, TextView tv, EditText et) {
+    private void displayPhoto(String dateTimeTag, String caption, Bitmap image, String path, ImageView iv, TextView tv, EditText et, ImageButton fb) {
         if(image == null) {
             iv.setImageResource(R.mipmap.ic_launcher);
         } else {
@@ -179,6 +180,12 @@ public class MainPresenter {
         iv.setTag(path);
         et.setText(caption);
         tv.setText(dateTimeTag);
+        boolean isFavourite = readState(path);
+        if (isFavourite) {
+            fb.setImageResource(android.R.drawable.btn_star_big_on);
+        } else {
+            fb.setImageResource(android.R.drawable.btn_star_big_off);
+        }
     }
 
     public File updatePhoto(String path, String caption) {
@@ -203,6 +210,14 @@ public class MainPresenter {
             File file = new File(path);
             file.delete();
         }
+    }
+
+    public void saveState(boolean isFavourite, String path) {
+        Helper.setFileTag(isFavourite, path);
+    }
+
+    public boolean readState(String path) {
+        return Helper.getFileTag(path);
     }
 }
 
