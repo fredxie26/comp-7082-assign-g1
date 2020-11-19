@@ -56,12 +56,14 @@ public class UITest1 {
         String path = file.getAbsolutePath();
         onView(withId(R.id.Gallery)).check(matches(ImageViewSameFilenameMatcher.matchesImage(path)));
 
-
+        onView(withId(R.id.favorite)).perform(click());
         onView(withId(R.id.Captions)).check(matches(withText("myCaption")));
         onView(withId(R.id.RightButton)).perform(click());
         onView(withId(R.id.Gallery)).check(matches(ImageViewSameFilenameMatcher.matchesImage(path)));
         onView(withId(R.id.LeftButton)).perform(click());
         onView(withId(R.id.Gallery)).check(matches(ImageViewSameFilenameMatcher.matchesImage(path)));
+        onView(withId(R.id.remove_pic)).perform(click());
+
 
     }
 
