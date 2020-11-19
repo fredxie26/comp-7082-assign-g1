@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageView;
     private FusedLocationProviderClient fusedLocationClient;
     private MainPresenter mainPresenter;
-    public static Context context;
+    public Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
